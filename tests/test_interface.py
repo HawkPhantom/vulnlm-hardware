@@ -124,6 +124,56 @@ class ProductTests(unittest.TestCase):
         self.assertEqual(hardware.Run.input_ptr.offset,32)
         self.assertEqual(hardware.Run.submit_ns.offset,96)
 
+    def test_e2_uses_real_receiver_rearm_operation_for_each_policy(self):
+        class E2Fixture(FixtureHardware):
+            def __init__(self,path):
+                super().__init__(path);self.info.capabilities=7
+        for policy in (0,1,2):
+            FixtureHardware.calls=[]
+            request=copy.deepcopy(REQUEST);request.update(scenario='e2',policy=policy)
+            with patch('web.product.Hardware',E2Fixture):
+                result=product.execute(product.validate_request(request),'/fixture',lambda *args:None)
+            self.assertEqual(FixtureHardware.calls[1][1]['scenario'],'e2')
+            self.assertEqual(result['wrong_product_decision'],policy==0)
+            self.assertEqual(result['delivered_b']['score'],948 if policy==0 else 445)
+
+    def test_unsupported_e2_is_refused_before_any_dma_job(self):
+        request=copy.deepcopy(REQUEST);request['scenario']='e2'
+        with patch('web.product.Hardware',FixtureHardware),self.assertRaisesRegex(RuntimeError,'E2 support'):
+            product.execute(product.validate_request(request),'/fixture',lambda *args:None)
+        self.assertEqual(FixtureHardware.calls,[])
+
+    def test_reset_padding_is_never_returned_as_product_output(self):
+        class Recovered(FixtureHardware):
+            def run(self,frame,**kwargs):
+                result=super().run(frame,**kwargs)
+                if kwargs.get('capture'):
+                    result['metadata'].update(recovery_flags=1,recovery_count=9)
+                    result['words']=[0]*64
+                return result
+        with self.assertRaisesRegex(RuntimeError,'Automatic reset recovery discarded'):
+            self.run_policy(0,Recovered)
+
+    def test_hardware_bridge_encodes_e2_and_recovery_ioctl_operations(self):
+        hw=object.__new__(hardware.Hardware);hw.fd=42
+        hw.info=hardware.Info(abi=1,rows=1,cols=4,input_bytes=8,output_bytes=4,capabilities=7)
+        seen=[]
+        def ioctl_fixture(fd,command,run):
+            self.assertEqual(fd,42);self.assertEqual(command,hardware.RUN)
+            self.assertEqual(C.string_at(run.input_ptr,8),bytes(8))
+            seen.append(run.op)
+            run.recovery_flags=1 if run.op==hardware.OP_RECOVERY_TEST else 0
+            run.recovery_count=17
+        with patch('web.hardware.ioctl_struct',ioctl_fixture):
+            for options in ({},{'capture':True},{'capture':True,'scenario':'e2'},{'recovery_test':True}):
+                result=hw.run(bytes(8),job_id=1,generation=1,**options)
+                self.assertEqual(result['metadata']['recovery_count'],17)
+        self.assertEqual(seen,[0,2,3,4])
+
+    def test_unknown_scenario_is_rejected(self):
+        request=copy.deepcopy(REQUEST);request['scenario']='fake'
+        with self.assertRaisesRegex(ValueError,'scenario'):product.validate_request(request)
+
     def test_offline_device_has_no_result_fallback(self):
         with patch('web.hardware.sys.platform','darwin'):
             result=hardware.device_status()

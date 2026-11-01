@@ -16,7 +16,7 @@ set board [lindex $boards 0]
 create_project kv260_secx $out -part [get_property PART_NAME $board]
 set_property board_part $board [current_project]
 set_property target_language Verilog [current_project]
-add_files [list "$root/rtl/axis_int8_matvec.sv" "$root/rtl/matvec_axil_ctrl.sv" "$root/rtl/kv260_matvec.sv"]
+add_files [list "$root/rtl/axis_int8_matvec.sv" "$root/rtl/matvec_axil_ctrl.sv" "$root/rtl/matvec_recovery.sv" "$root/rtl/kv260_matvec.sv"]
 update_compile_order -fileset sources_1
 create_bd_design system
 proc ip {name type} {

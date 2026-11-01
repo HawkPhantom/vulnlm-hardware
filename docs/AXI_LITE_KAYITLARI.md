@@ -22,7 +22,7 @@ RW: okuma/yazma; RO: salt okuma; CMD: komut, okumada sıfır; W1C: yazılan 1 bi
 | Ofset | Kayıt | Tür | İçerik |
 | --- | --- | --- | --- |
 | `0x000` | ID | RO | `0x4D565831` (MVX1) |
-| `0x004` | VERSION | RO | `0x00010000` (1.0) |
+| `0x004` | VERSION | RO | `0x00010001` (1.0.1) |
 | `0x008` | CONTROL | CMD | Bit 0: START; diğer etkin bitler SLVERR |
 | `0x00C` | STATUS | RO | Aşağıdaki durum bitleri |
 | `0x010` | CFG_JOB_ID | RW | Sonraki işin 32 bit kimliği |
@@ -59,6 +59,13 @@ RW: okuma/yazma; RO: salt okuma; CMD: komut, okumada sıfır; W1C: yazılan 1 bi
 | `0x08C` | LAST_STALL_LO | RO | Son terminal olayın geri basınç çevrimi, alt |
 | `0x090` | LAST_STALL_HI | RO | Son terminal olayın geri basınç çevrimi, üst |
 | `0x094` | LAST_OUTCOME | RO | 0: kayıt yok; 1: normal tamamlanma; 2: fault |
+| `0x098` | RECOVERY | CMD | 1: abort/drain reset; 2: DMA boşaldıktan sonra resetten çıkış |
+| `0x09C` | RECOVERY_STATUS | RO | Bit 0: aktif reset; bit 1: stream paketleri boşaldı |
+| `0x0A0` | RECOVERY_COUNT | RO | Tamamlanan resetten çıkış sayacı |
+| `0x0A4` | FEATURES | RO | Bit 0: recovery; bit 1: alıcı öncesi tutma kapısı; değer 3 |
+| `0x0A8` | STREAM_STATE | RO | Bit 0: kaynakta bekleyen çıktı; bit 1: giriş tamam; bit 2: çıkış tamam |
+| `0x0AC` | STREAM_OUTPUT | RO | Kabul edilmiş çıktı beat sayısı |
+| `0x0B0` | RECEIVE_HOLD | RW | 1: kaynak çıktısını DMA önünde tut; yalnız idle iken 1 yapılabilir |
 
 SNAPSHOT komutunun bit 0 dışındaki etkin bitleri de SLVERR'dir. IRQ_ENABLE/IRQ_STATUS yalnız alt iki biti kullanır ve yalnız WSTRB[0] etkinse değişir.
 
@@ -77,7 +84,7 @@ Hata durumunda BUSY ve FAULT birlikte 1, READY 0'dır. IRQ_STATUS bitini temizle
 
 ## Başlatma, olay ve ölçüm davranışları
 
-START'ın uygulandığı anda çekirdek hazır değilse veya fault durumundaysa SLVERR döner. Bekleyen iş kuyruğu veya otomatik başlatma yoktur. CONTROL=0 bir işlemsiz komuttur; desteklenen bir iptal/reset komutu yoktur.
+START'ın uygulandığı anda çekirdek hazır değilse veya fault durumundaysa SLVERR döner. Bekleyen iş kuyruğu veya otomatik başlatma yoktur. CONTROL=0 bir işlemsiz komuttur. Abort/drain reset ayrı RECOVERY kaydındadır.
 
 CFG kayıtları iş çalışırken yazılabilir; yeni değerler sonraki START içindir. Çekirdek geçerli işin ayarlarını başlangıçta aldığı için çalışan işin kimliği, nesli ve gecikmesi değişmez. START yanıtının kabulünü geciktirmek başlatmayı geciktirmez.
 
@@ -89,7 +96,7 @@ SNAPSHOT, komutun uygulandığı kenardaki mevcut metrikleri kopyalar. Sonradan 
 
 AR kabulünde okunan değer kayıtlı R yanıtına alınır. Yanıt bekletilirken canlı kayıt değişse de yanıt değişmez. Eşzamanlı okuma/yazmada okuma, o kenardan önceki kayıt değerini görür. LAST ve IRQ_STATUS, çekirdeğin son stream el sıkışmasından sonraki saat kenarında yakalanır.
 
-## Daha sonra sürücüde uygulanacak akış
+## Sürücü akışı
 
 1. ID, VERSION ve boyutları oku; önceki terminal kaydını tüket ve ilgili IRQ bitini onayla.
 2. Tamponları ayır/eşle; DMA alıcısını doğru çıktı kapasitesiyle hazırla. CFG_JOB_ID, CFG_GENERATION ve CFG_DELAY_CYCLES yaz.
@@ -99,4 +106,4 @@ AR kabulünde okunan değer kayıtlı R yanıtına alınır. Yanıt bekletilirke
 6. **DMA'nın DDR aktarımının bittiğini ve gerekli CPU–DMA senkronizasyonunu ayrıca doğrula.** Ancak bundan sonra bellekteki sonuç tüketilebilir. Çekirdek IRQ'su bu adımın yerine geçmez.
 7. Kaydı okuduktan sonra yalnız ilgili IRQ_STATUS bitine 1 yazarak onayla.
 
-Timeout, bu arayüzde donanımı iptal etmez. Belleği yeniden vermeden önce DMA, kaynak, FIFO ve bekleyen bellek işlemleri için planlanan P2 protokolü gerekir. Yerel reset/IRQ onayı, bütün veri yolunun güvenle sustuğunun kanıtı değildir.
+Timeout sürücüdeki abort/drain reset yolunu tetikler. RECOVERY, AXI-Lite veya bellek veri yolunu resetlemez; hesap çekirdeğini resetlerken DMA paketlerini tamamlar. Belleği yeniden vermeden önce iki DMA callback’i, senkronizasyon, guard kontrolü ve RECOVERY_STATUS=3 gerekir. Ancak sonra RELEASE yazılır. Ayrıntılı [toparlanma sözleşmesi](RECOVERY_E2.md).

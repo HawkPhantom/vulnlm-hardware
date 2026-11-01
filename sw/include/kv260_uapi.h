@@ -22,7 +22,12 @@ typedef int32_t __s32;
  * output_ptr receives an A-tagged diagnostic DMA snapshot after drain,
  * including after timeout. It is never implicitly a valid B response. */
 #define KV_OP_CAPTURE 2U
+#define KV_OP_E2 3U
+#define KV_OP_RECOVERY_TEST 4U
 #define KV_CAP_CAPTURE (1U << 0)
+#define KV_CAP_RECOVERY (1U << 1)
+#define KV_CAP_E2 (1U << 2)
+#define KV_RECOVERY_DRAINED_RESET (1U << 0)
 #define KV_STATE_IDLE 0U
 #define KV_STATE_RUNNING 1U
 #define KV_STATE_QUARANTINED 2U
@@ -43,7 +48,7 @@ struct kv_run {
     __u32 input_bytes, output_bytes;
     __s32 status; /* 0, -ETIMEDOUT (drained, discarded), or terminal error */
     __u32 timed_out, window_hit, changed_bytes, late_a_words, mock_bad_response;
-    __u32 old_completion_rejected, guard_errors, reserved_out[2];
+    __u32 old_completion_rejected, guard_errors, recovery_flags, recovery_count;
     __u64 submit_ns, timeout_ns, handoff_ns, tx_done_ns, rx_done_ns, release_ns;
     __u64 core_cycles, stall_cycles;
 };

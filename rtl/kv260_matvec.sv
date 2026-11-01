@@ -81,19 +81,27 @@ module kv260_matvec #(
     wire [31:0] cfg_job_id, cfg_generation, cfg_delay_cycles;
     wire [31:0] core_job_id, core_generation, core_input_beats, core_output_beats;
     wire [63:0] core_elapsed_cycles, core_output_stall_cycles;
+    wire abort_drain, recovery_release, recovery_active, recovery_drained, core_aresetn, receive_hold;
+    wire [31:0] recovery_count, stream_state, stream_output_beats;
+    wire [31:0] c_in_data, c_out_data;
+    wire [3:0] c_in_keep, c_out_keep;
+    wire c_in_valid,c_in_last,c_in_ready,c_out_valid,c_out_last,c_out_ready;
 
     matvec_axil_ctrl #(.ROWS(ROWS), .COLS(COLS)) control (.*);
+    matvec_recovery #(.ROWS(ROWS), .COLS(COLS)) recovery (
+        .job_start(core_start_valid && core_start_ready), .*
+    );
     axis_int8_matvec #(.ROWS(ROWS), .COLS(COLS)) compute (
-        .aclk(aclk), .aresetn(aresetn),
+        .aclk(aclk), .aresetn(core_aresetn),
         .start_valid(core_start_valid), .start_ready(core_start_ready),
         .cfg_job_id(cfg_job_id), .cfg_generation(cfg_generation),
         .cfg_delay_cycles(cfg_delay_cycles),
-        .s_axis_tdata(s_axis_tdata), .s_axis_tkeep(s_axis_tkeep),
-        .s_axis_tvalid(s_axis_tvalid), .s_axis_tready(s_axis_tready),
-        .s_axis_tlast(s_axis_tlast),
-        .m_axis_tdata(m_axis_tdata), .m_axis_tkeep(m_axis_tkeep),
-        .m_axis_tvalid(m_axis_tvalid), .m_axis_tready(m_axis_tready),
-        .m_axis_tlast(m_axis_tlast),
+        .s_axis_tdata(c_in_data), .s_axis_tkeep(c_in_keep),
+        .s_axis_tvalid(c_in_valid), .s_axis_tready(c_in_ready),
+        .s_axis_tlast(c_in_last),
+        .m_axis_tdata(c_out_data), .m_axis_tkeep(c_out_keep),
+        .m_axis_tvalid(c_out_valid), .m_axis_tready(c_out_ready),
+        .m_axis_tlast(c_out_last),
         .busy(core_busy), .done(core_done), .fault(core_fault),
         .error_code(core_error_code), .active_job_id(core_job_id),
         .active_generation(core_generation), .input_beats(core_input_beats),

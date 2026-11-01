@@ -11,7 +11,7 @@ RTL := rtl/axis_int8_matvec.sv
 TB := sim/tb_axis_int8_matvec.sv
 SIM := $(BUILD_DIR)/matvec_$(ROWS)x$(COLS).vvp
 CTRL := rtl/matvec_axil_ctrl.sv
-TOP := rtl/kv260_matvec.sv
+TOP := rtl/kv260_matvec.sv rtl/matvec_recovery.sv
 BFM := sim/axil_master_bfm.sv sim/axil_signals.svh
 CTRL_SIM := $(BUILD_DIR)/axil_control.vvp
 PERIPHERAL_SIM := $(BUILD_DIR)/peripheral_$(ROWS)x$(COLS).vvp
@@ -20,6 +20,7 @@ DMA_SIGNALS := sim/models/axi_write_signals.svh
 REUSE_SIM := $(BUILD_DIR)/reuse_$(ROWS)x$(COLS).vvp
 DMA_MODEL_SIM := $(BUILD_DIR)/dma_models.vvp
 STALE_SIM := $(BUILD_DIR)/stale_$(ROWS)x$(COLS).vvp
+RECOVERY_SIM := $(BUILD_DIR)/recovery_$(ROWS)x$(COLS).vvp
 VIVADO ?= vivado
 DOCKER ?= docker
 UI_PORT ?= 8080
@@ -27,7 +28,7 @@ NODE ?= node
 
 .PHONY: test test-core test-control test-peripheral test-dma-models test-reuse test-stale report-reuse test-matrix compile wave clean host-test linux-test vivado-project vivado-build ui ui-test
 
-compile: $(SIM) $(CTRL_SIM) $(PERIPHERAL_SIM) $(DMA_MODEL_SIM) $(REUSE_SIM) $(STALE_SIM)
+compile: $(SIM) $(CTRL_SIM) $(PERIPHERAL_SIM) $(DMA_MODEL_SIM) $(REUSE_SIM) $(STALE_SIM) $(RECOVERY_SIM)
 
 $(SIM): $(RTL) $(TB) Makefile
 	@mkdir -p $(BUILD_DIR)
@@ -35,7 +36,15 @@ $(SIM): $(RTL) $(TB) Makefile
 		-Ptb_axis_int8_matvec.ROWS=$(ROWS) -Ptb_axis_int8_matvec.COLS=$(COLS) \
 		-o $@ $(RTL) $(TB)
 
-test: test-core test-control test-peripheral test-dma-models test-reuse test-stale
+test: test-core test-control test-peripheral test-dma-models test-reuse test-stale test-recovery
+
+$(RECOVERY_SIM): $(RTL) $(CTRL) $(TOP) $(BFM) sim/tb_recovery.sv Makefile
+	@mkdir -p $(BUILD_DIR)
+	$(IVERILOG) -g2012 -Wall -I sim -s tb_recovery -Ptb_recovery.ROWS=$(ROWS) -Ptb_recovery.COLS=$(COLS) -o $@ $(RTL) $(CTRL) $(TOP) sim/axil_master_bfm.sv sim/tb_recovery.sv
+
+.PHONY: test-recovery
+test-recovery: $(RECOVERY_SIM)
+	$(VVP) $(RECOVERY_SIM)
 
 test-core: $(SIM)
 	$(VVP) $(SIM) +SEED=$(SEED) +JOBS=$(JOBS)
@@ -89,10 +98,10 @@ report-reuse: test-reuse
 		--version-file $(BUILD_DIR)/simulator-version.txt --output-dir results/reuse
 
 test-matrix: test-control test-dma-models
-	$(MAKE) test-core test-peripheral test-reuse test-stale ROWS=1 COLS=4
-	$(MAKE) test-core test-peripheral test-reuse test-stale ROWS=3 COLS=12
-	$(MAKE) test-core test-peripheral test-reuse test-stale ROWS=16 COLS=16
-	$(MAKE) test-core test-peripheral test-reuse test-stale ROWS=64 COLS=64
+	$(MAKE) test-core test-peripheral test-reuse test-stale test-recovery ROWS=1 COLS=4
+	$(MAKE) test-core test-peripheral test-reuse test-stale test-recovery ROWS=3 COLS=12
+	$(MAKE) test-core test-peripheral test-reuse test-stale test-recovery ROWS=16 COLS=16
+	$(MAKE) test-core test-peripheral test-reuse test-stale test-recovery ROWS=64 COLS=64
 	$(IVERILOG) -V > $(BUILD_DIR)/simulator-version.txt 2>&1
 	$(PYTHON) scripts/report_reuse.py --inputs $(BUILD_DIR)/reuse_1x4.jsonl \
 		$(BUILD_DIR)/reuse_3x12.jsonl $(BUILD_DIR)/reuse_16x16.jsonl $(BUILD_DIR)/reuse_64x64.jsonl \

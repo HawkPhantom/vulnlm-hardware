@@ -49,14 +49,14 @@ static void print_run(const struct kv_run *r)
     printf("{\"kind\":\"%s\",\"policy\":%u,\"job_id\":%u,\"generation\":%u,"
            "\"delay_cycles\":%u,\"timeout_ms\":%u,\"status\":%d,\"timed_out\":%u,"
            "\"window_hit\":%u,\"changed_bytes\":%u,\"late_a_words\":%u,"
-           "\"mock_bad_response\":%u,\"old_completion_rejected\":%u,\"guard_errors\":%u,"
+           "\"mock_bad_response\":%u,\"old_completion_rejected\":%u,\"guard_errors\":%u,\"recovery_flags\":%u,\"recovery_count\":%u,"
            "\"submit_ns\":%" PRIu64 ",\"timeout_ns\":%" PRIu64 ",\"handoff_ns\":%" PRIu64 ","
            "\"tx_done_ns\":%" PRIu64 ",\"rx_done_ns\":%" PRIu64 ",\"release_ns\":%" PRIu64 ","
            "\"core_cycles\":%" PRIu64 ",\"stall_cycles\":%" PRIu64 "}\n",
            r->op == KV_OP_E1 ? "hardware_E1_private_scratch" : "hardware_run",
            r->policy, r->job_id, r->generation, r->delay_cycles, r->timeout_ms,
            r->status, r->timed_out, r->window_hit, r->changed_bytes, r->late_a_words,
-           r->mock_bad_response, r->old_completion_rejected, r->guard_errors,
+           r->mock_bad_response, r->old_completion_rejected, r->guard_errors, r->recovery_flags, r->recovery_count,
            (uint64_t)r->submit_ns, (uint64_t)r->timeout_ns, (uint64_t)r->handoff_ns,
            (uint64_t)r->tx_done_ns, (uint64_t)r->rx_done_ns, (uint64_t)r->release_ns,
            (uint64_t)r->core_cycles, (uint64_t)r->stall_cycles);

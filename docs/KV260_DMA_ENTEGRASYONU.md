@@ -41,7 +41,7 @@ Kalıcı takılmada ayrı durdurma/reset yolu gereklidir. DMAengine yolu kullan�
 
 AXI DMA stop/reset komutu verilmesi ile işlemin bitmesi ayrı kaydedilir. AMD, stop sırasında bekleyen işlemlerin boşaltılabildiğini/tamamlanabildiğini ve S2MM veri bütünlüğünün garanti edilmediğini belirtir. Bu yüzden stop sonrası kısmi sonuç geçerli kabul edilmez; ayrıca özel çekirdek/FIFO temizliği doğrulanır. [AMD PG021 S2MM kontrolü](https://docs.amd.com/r/en-US/pg021_axi_dma/S2MM_DMACR-S2MM-DMA-Control-Register-Offset-30h)
 
-Veri yolunun sustuğu kanıtlanamıyorsa tampon karantinada kalır ve o kaynağa yeni iş kabul edilmez. Tek bir idle biti veya yalnız çekirdek reseti, bütün yol için boşalma kanıtı sayılmaz. P2'nin bu hata yolu henüz uygulanmış/doğrulanmış değildir.
+Veri yolunun sustuğu kanıtlanamıyorsa tampon karantinada kalır ve o kaynağa yeni iş kabul edilmez. Tek bir idle biti veya yalnız çekirdek reseti, bütün yol için boşalma kanıtı sayılmaz. Uygulanan abort/drain reset yolu ve yerel/kart kabul ayrımı [RECOVERY_E2.md](RECOVERY_E2.md) dosyasındadır.
 
 ## Donanım ölçümü ve hata enjeksiyonu
 

@@ -70,13 +70,14 @@
     "web/static/style.css": "d597f76a50373c523c6e93d429727689437fd245e1c88d599e1d2c6be0deb0c3"
   },
   "artifact_sha256": {
-    "RAPOR.md": "5c2fe72fcbb4fcf40201f1127a1d5c572c714199bcbeb2eb35b6588238e8b06a",
+    "RAPOR.md": "407f6cb1ab247572c05344cb81b76d34628505bd7eaf96157b85b824752a44d7",
     "host-tests.log": "984e937ae9ae95ba8895cdef1f33348a42f43f01277928f8e43f85b714020b47",
     "linux-tests.log": "d11e9b8ef762c9d5d527fd21433f9265ce5a02f4ce1c01d7cf877020fd17bfb0",
     "ui-tests.log": "dc074110f21f7cc046b6724aefab98a50cf656fb14a119c0019d07129f8e62d1",
     "verification-manifest.txt": "d0ebb3098b9efbd73f76c9e5f77f4d6159b7bbd8604eb78503a9e1f73cefb7f5",
-    "vulnlm-hardware-request.png": "8f5631265ad0a58f105220e2e271a6dd281b21bfa948c568aa5375d09d2d7c6a",
-    "vulnlm-hardware.png": "32170b2dc9522430aa666e2da5815ad8259b4b8c042b80da45e33769d134f880",
+    "vulnlm-hardware.png": "e425aeba80a59ea1b7a89c84218bb2ac8f4089a3504952c182544256bcb2399c",
     "web-abi.json": "258c950bb0f07f69493127a910b636782a6cc987ef4cf229969a4fc4c2e6d51b"
-  }
+  },
+  "screenshot_origin": "User-supplied 3024x1724 image; replaces prior generated previews, not physical-board evidence.",
+  "superseded_by": "results/recovery/summary.json"
 }

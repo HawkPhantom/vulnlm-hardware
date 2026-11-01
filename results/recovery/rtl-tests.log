@@ -1,0 +1,127 @@
+/private/tmp/hardware_secx-iverilog-12/bin/vvp build/axil_control.vvp
+PASS axil-control writes=56 reads=123 starts=1
+sim/tb_matvec_axil_ctrl.sv:210: $finish called at 9650000 (1ps)
+/private/tmp/hardware_secx-iverilog-12/bin/vvp build/dma_models.vvp
+PASS dma-models checks=9
+sim/tb_dma_models.sv:169: $finish called at 1567000 (1ps)
+/Applications/Xcode.app/Contents/Developer/usr/bin/make test-core test-peripheral test-reuse test-stale test-recovery ROWS=1 COLS=4
+/private/tmp/hardware_secx-iverilog-12/bin/vvp build/matvec_1x4.vvp +SEED=20261029 +JOBS=20
+HOST_TIMEOUT: job=abc0000b remains active; waiting for late output
+PASS rows=1 cols=4 seed=20261029 jobs=47 checks=56 cycles=1717
+sim/tb_axis_int8_matvec.sv:414: $finish called at 17167000 (1ps)
+/private/tmp/hardware_secx-iverilog-12/bin/vvp build/peripheral_1x4.vvp +SEED=20261029
+HOST_TIMEOUT_MMIO: A remains busy; staged B START rejected
+PASS peripheral rows=1 cols=4 seed=20261029 writes=23 reads=64 delay_delta=200
+sim/tb_kv260_matvec.sv:281: $finish called at 7200000 (1ps)
+/private/tmp/hardware_secx-iverilog-12/bin/vvp build/reuse_1x4.vvp +SEED=20261029 +TRIALS=3
+REUSE P0 trial=0 writes_into_B=1 bad_mock_response=1 hold=0 cycles
+REUSE P1 trial=0 writes_into_B=1 bad_mock_response=0 hold=0 cycles
+REUSE P2 trial=0 writes_into_B=0 bad_mock_response=0 hold=23 cycles
+REUSE P0 trial=1 writes_into_B=1 bad_mock_response=1 hold=0 cycles
+REUSE P1 trial=1 writes_into_B=1 bad_mock_response=0 hold=0 cycles
+REUSE P2 trial=1 writes_into_B=0 bad_mock_response=0 hold=28 cycles
+REUSE P0 trial=2 writes_into_B=1 bad_mock_response=1 hold=0 cycles
+REUSE P1 trial=2 writes_into_B=1 bad_mock_response=0 hold=0 cycles
+REUSE P2 trial=2 writes_into_B=0 bad_mock_response=0 hold=33 cycles
+PASS buffer-reuse rows=1 cols=4 cases=9
+sim/tb_dma_buffer_reuse.sv:349: $finish called at 16437000 (1ps)
+/private/tmp/hardware_secx-iverilog-12/bin/vvp build/stale_1x4.vvp
+PASS stale-stream rows=1 cols=4 policies=3
+sim/tb_stale_stream.sv:117: $finish called at 2120000 (1ps)
+/private/tmp/hardware_secx-iverilog-12/bin/iverilog -g2012 -Wall -I sim -s tb_recovery -Ptb_recovery.ROWS=1 -Ptb_recovery.COLS=4 -o build/recovery_1x4.vvp rtl/axis_int8_matvec.sv rtl/matvec_axil_ctrl.sv rtl/kv260_matvec.sv rtl/matvec_recovery.sv sim/axil_master_bfm.sv sim/tb_recovery.sv
+rtl/matvec_axil_ctrl.sv:109: sorry: constant selects in always_* processes are not currently supported (all bits will be included).
+/private/tmp/hardware_secx-iverilog-12/bin/vvp build/recovery_1x4.vvp
+PASS recovery rows=1 cols=4 abort_phases=6 post_reset_jobs=6 e2_gate=1
+sim/tb_recovery.sv:115: $finish called at 9580000 (1ps)
+/Applications/Xcode.app/Contents/Developer/usr/bin/make test-core test-peripheral test-reuse test-stale test-recovery ROWS=3 COLS=12
+/private/tmp/hardware_secx-iverilog-12/bin/vvp build/matvec_3x12.vvp +SEED=20261029 +JOBS=20
+HOST_TIMEOUT: job=abc0000b remains active; waiting for late output
+PASS rows=3 cols=12 seed=20261029 jobs=47 checks=56 cycles=5597
+sim/tb_axis_int8_matvec.sv:414: $finish called at 55967000 (1ps)
+/private/tmp/hardware_secx-iverilog-12/bin/vvp build/peripheral_3x12.vvp +SEED=20261029
+HOST_TIMEOUT_MMIO: A remains busy; staged B START rejected
+PASS peripheral rows=3 cols=12 seed=20261029 writes=23 reads=64 delay_delta=200
+sim/tb_kv260_matvec.sv:281: $finish called at 10100000 (1ps)
+/private/tmp/hardware_secx-iverilog-12/bin/vvp build/reuse_3x12.vvp +SEED=20261029 +TRIALS=3
+REUSE P0 trial=0 writes_into_B=3 bad_mock_response=1 hold=0 cycles
+REUSE P1 trial=0 writes_into_B=3 bad_mock_response=0 hold=0 cycles
+REUSE P2 trial=0 writes_into_B=0 bad_mock_response=0 hold=61 cycles
+REUSE P0 trial=1 writes_into_B=3 bad_mock_response=1 hold=0 cycles
+REUSE P1 trial=1 writes_into_B=3 bad_mock_response=0 hold=0 cycles
+REUSE P2 trial=1 writes_into_B=0 bad_mock_response=0 hold=67 cycles
+REUSE P0 trial=2 writes_into_B=3 bad_mock_response=1 hold=0 cycles
+REUSE P1 trial=2 writes_into_B=3 bad_mock_response=0 hold=0 cycles
+REUSE P2 trial=2 writes_into_B=0 bad_mock_response=0 hold=98 cycles
+PASS buffer-reuse rows=3 cols=12 cases=9
+sim/tb_dma_buffer_reuse.sv:349: $finish called at 33207000 (1ps)
+/private/tmp/hardware_secx-iverilog-12/bin/vvp build/stale_3x12.vvp
+PASS stale-stream rows=3 cols=12 policies=3
+sim/tb_stale_stream.sv:117: $finish called at 6680000 (1ps)
+/private/tmp/hardware_secx-iverilog-12/bin/iverilog -g2012 -Wall -I sim -s tb_recovery -Ptb_recovery.ROWS=3 -Ptb_recovery.COLS=12 -o build/recovery_3x12.vvp rtl/axis_int8_matvec.sv rtl/matvec_axil_ctrl.sv rtl/kv260_matvec.sv rtl/matvec_recovery.sv sim/axil_master_bfm.sv sim/tb_recovery.sv
+rtl/matvec_axil_ctrl.sv:109: sorry: constant selects in always_* processes are not currently supported (all bits will be included).
+/private/tmp/hardware_secx-iverilog-12/bin/vvp build/recovery_3x12.vvp
+PASS recovery rows=3 cols=12 abort_phases=6 post_reset_jobs=6 e2_gate=1
+sim/tb_recovery.sv:115: $finish called at 17360000 (1ps)
+/Applications/Xcode.app/Contents/Developer/usr/bin/make test-core test-peripheral test-reuse test-stale test-recovery ROWS=16 COLS=16
+/private/tmp/hardware_secx-iverilog-12/bin/vvp build/matvec_16x16.vvp +SEED=20261029 +JOBS=20
+HOST_TIMEOUT: job=abc0000b remains active; waiting for late output
+PASS rows=16 cols=16 seed=20261029 jobs=47 checks=56 cycles=30575
+sim/tb_axis_int8_matvec.sv:414: $finish called at 305747000 (1ps)
+/private/tmp/hardware_secx-iverilog-12/bin/vvp build/peripheral_16x16.vvp +SEED=20261029
+HOST_TIMEOUT_MMIO: A remains busy; staged B START rejected
+PASS peripheral rows=16 cols=16 seed=20261029 writes=23 reads=64 delay_delta=200
+sim/tb_kv260_matvec.sv:281: $finish called at 28650000 (1ps)
+/private/tmp/hardware_secx-iverilog-12/bin/vvp build/reuse_16x16.vvp +SEED=20261029 +TRIALS=3
+REUSE P0 trial=0 writes_into_B=16 bad_mock_response=1 hold=0 cycles
+REUSE P1 trial=0 writes_into_B=16 bad_mock_response=0 hold=0 cycles
+REUSE P2 trial=0 writes_into_B=0 bad_mock_response=0 hold=507 cycles
+REUSE P0 trial=1 writes_into_B=16 bad_mock_response=1 hold=0 cycles
+REUSE P1 trial=1 writes_into_B=16 bad_mock_response=0 hold=0 cycles
+REUSE P2 trial=1 writes_into_B=0 bad_mock_response=0 hold=504 cycles
+REUSE P0 trial=2 writes_into_B=16 bad_mock_response=1 hold=0 cycles
+REUSE P1 trial=2 writes_into_B=16 bad_mock_response=0 hold=0 cycles
+REUSE P2 trial=2 writes_into_B=0 bad_mock_response=0 hold=536 cycles
+PASS buffer-reuse rows=16 cols=16 cases=9
+sim/tb_dma_buffer_reuse.sv:349: $finish called at 144167000 (1ps)
+/private/tmp/hardware_secx-iverilog-12/bin/vvp build/stale_16x16.vvp
+PASS stale-stream rows=16 cols=16 policies=3
+sim/tb_stale_stream.sv:117: $finish called at 37220000 (1ps)
+/private/tmp/hardware_secx-iverilog-12/bin/iverilog -g2012 -Wall -I sim -s tb_recovery -Ptb_recovery.ROWS=16 -Ptb_recovery.COLS=16 -o build/recovery_16x16.vvp rtl/axis_int8_matvec.sv rtl/matvec_axil_ctrl.sv rtl/kv260_matvec.sv rtl/matvec_recovery.sv sim/axil_master_bfm.sv sim/tb_recovery.sv
+rtl/matvec_axil_ctrl.sv:109: sorry: constant selects in always_* processes are not currently supported (all bits will be included).
+/private/tmp/hardware_secx-iverilog-12/bin/vvp build/recovery_16x16.vvp
+PASS recovery rows=16 cols=16 abort_phases=6 post_reset_jobs=6 e2_gate=1
+sim/tb_recovery.sv:115: $finish called at 64390000 (1ps)
+/Applications/Xcode.app/Contents/Developer/usr/bin/make test-core test-peripheral test-reuse test-stale test-recovery ROWS=64 COLS=64
+/private/tmp/hardware_secx-iverilog-12/bin/vvp build/matvec_64x64.vvp +SEED=20261029 +JOBS=20
+HOST_TIMEOUT: job=abc0000b remains active; waiting for late output
+PASS rows=64 cols=64 seed=20261029 jobs=47 checks=56 cycles=455293
+sim/tb_axis_int8_matvec.sv:414: $finish called at 4552927000 (1ps)
+/private/tmp/hardware_secx-iverilog-12/bin/vvp build/peripheral_64x64.vvp +SEED=20261029
+HOST_TIMEOUT_MMIO: A remains busy; staged B START rejected
+PASS peripheral rows=64 cols=64 seed=20261029 writes=23 reads=64 delay_delta=200
+sim/tb_kv260_matvec.sv:281: $finish called at 344970000 (1ps)
+/private/tmp/hardware_secx-iverilog-12/bin/vvp build/reuse_64x64.vvp +SEED=20261029 +TRIALS=3
+REUSE P0 trial=0 writes_into_B=64 bad_mock_response=1 hold=0 cycles
+REUSE P1 trial=0 writes_into_B=64 bad_mock_response=0 hold=0 cycles
+REUSE P2 trial=0 writes_into_B=0 bad_mock_response=0 hold=8137 cycles
+REUSE P0 trial=1 writes_into_B=64 bad_mock_response=1 hold=0 cycles
+REUSE P1 trial=1 writes_into_B=64 bad_mock_response=0 hold=0 cycles
+REUSE P2 trial=1 writes_into_B=0 bad_mock_response=0 hold=8130 cycles
+REUSE P0 trial=2 writes_into_B=64 bad_mock_response=1 hold=0 cycles
+REUSE P1 trial=2 writes_into_B=64 bad_mock_response=0 hold=0 cycles
+REUSE P2 trial=2 writes_into_B=0 bad_mock_response=0 hold=8123 cycles
+PASS buffer-reuse rows=64 cols=64 cases=9
+sim/tb_dma_buffer_reuse.sv:349: $finish called at 2047417000 (1ps)
+/private/tmp/hardware_secx-iverilog-12/bin/vvp build/stale_64x64.vvp
+PASS stale-stream rows=64 cols=64 policies=3
+sim/tb_stale_stream.sv:117: $finish called at 559220000 (1ps)
+/private/tmp/hardware_secx-iverilog-12/bin/iverilog -g2012 -Wall -I sim -s tb_recovery -Ptb_recovery.ROWS=64 -Ptb_recovery.COLS=64 -o build/recovery_64x64.vvp rtl/axis_int8_matvec.sv rtl/matvec_axil_ctrl.sv rtl/kv260_matvec.sv rtl/matvec_recovery.sv sim/axil_master_bfm.sv sim/tb_recovery.sv
+rtl/matvec_axil_ctrl.sv:109: sorry: constant selects in always_* processes are not currently supported (all bits will be included).
+/private/tmp/hardware_secx-iverilog-12/bin/vvp build/recovery_64x64.vvp
+PASS recovery rows=64 cols=64 abort_phases=6 post_reset_jobs=6 e2_gate=1
+sim/tb_recovery.sv:115: $finish called at 862870000 (1ps)
+/private/tmp/hardware_secx-iverilog-12/bin/iverilog -V > build/simulator-version.txt 2>&1
+python3 scripts/report_reuse.py --inputs build/reuse_1x4.jsonl \
+		build/reuse_3x12.jsonl build/reuse_16x16.jsonl build/reuse_64x64.jsonl \
+		--version-file build/simulator-version.txt --output-dir results/reuse
+Validated 36 cases / 12 matched conditions; report: results/reuse/RAPOR.md

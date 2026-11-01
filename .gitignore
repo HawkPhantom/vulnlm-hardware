@@ -14,6 +14,7 @@ sw/kernel/modules.order
 *.log
 !results/system/*.log
 !results/interface/*.log
+!results/recovery/*.log
 .Xil/
 *.dSYM/
 results/board-ui/

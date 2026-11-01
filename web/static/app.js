@@ -7,6 +7,12 @@
   const format = value => new Intl.NumberFormat(window.VulnLMI18n.language).format(value);
   const ms = value => `${new Intl.NumberFormat(window.VulnLMI18n.language, { maximumFractionDigits: 3 }).format(value)} ms`;
   const decision = value => t(value === 'accept' ? 'accept' : value === 'reject' ? 'reject' : 'notDelivered');
+  function renderScenario() {
+    const e2 = el('scenario').value === 'e2';
+    el('scenario-tag').textContent = e2 ? 'E2 · AXI-Stream' : 'E1 · DMA';
+    el('scenario-title').textContent = t(e2 ? 'e2Title' : 'scenarioTitle');
+    el('scenario-description').textContent = t(e2 ? 'e2Description' : 'scenarioDescription');
+  }
   async function api(path, options = {}) {
     const response = await fetch(path, { cache: 'no-store', ...options });
     const data = await response.json();
@@ -122,7 +128,7 @@
   document.querySelectorAll('input[name=policy]').forEach(radio => radio.addEventListener('change', () => { el('active-policy').textContent = `P${radio.value}`; }));
   el('request-form').addEventListener('submit', async event => {
     event.preventDefault(); if (activeJob) return;
-    const body = { a: input('a'), b: input('b'), policy: Number(document.querySelector('input[name=policy]:checked').value), delay_cycles: Number(el('delay').value), timeout_ms: Number(el('timeout').value) };
+    const body = { a: input('a'), b: input('b'), scenario: el('scenario').value || 'e1', policy: Number(document.querySelector('input[name=policy]:checked').value), delay_cycles: Number(el('delay').value), timeout_ms: Number(el('timeout').value) };
     el('run-button').disabled = true;
     try {
       const job = await api('/api/jobs', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-KV260-Session': token }, body: JSON.stringify(body) });
@@ -134,7 +140,8 @@
     const url = URL.createObjectURL(new Blob([JSON.stringify(lastJob, null, 2)], { type: 'application/json' }));
     const a = document.createElement('a'); a.href = url; a.download = `vulnlm-hardware-${lastJob.id}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
   });
-  document.addEventListener('vulnlm:language', () => { renderDevice(); if (!el('result-content').hidden && lastJob) renderResult(lastJob); else if (polling) renderRunning(); });
+  el('scenario').addEventListener('change', renderScenario);
+  document.addEventListener('vulnlm:language', () => { renderScenario(); renderDevice(); if (!el('result-content').hidden && lastJob) renderResult(lastJob); else if (polling) renderRunning(); });
   async function start() {
     try { token = (await api('/api/session')).token; } catch (e) { el('connection-note').textContent = e.message; }
     await checkDevice(); setInterval(checkDevice, 4000);

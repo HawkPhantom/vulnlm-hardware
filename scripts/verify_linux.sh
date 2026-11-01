@@ -17,11 +17,12 @@ cc -std=c11 -Wall -Wextra -Werror -I/src/sw/include /src/tests/fixtures/web_abi.
 PYTHONPATH=/src python3 - <<'PY'
 import ctypes as C
 import json
-from web.hardware import Info, Run, GET_INFO, RUN, OP_CAPTURE, CAP_CAPTURE
+from web.hardware import Info, Run, GET_INFO, RUN, OP_CAPTURE, CAP_CAPTURE, OP_E2, OP_RECOVERY_TEST, CAP_E2, CAP_RECOVERY
 expected={'info_size':C.sizeof(Info),'run_size':C.sizeof(Run),
           'input_offset':Run.input_ptr.offset,'status_offset':Run.status.offset,
           'submit_offset':Run.submit_ns.offset,'get_info':GET_INFO,'run':RUN,
-          'capture_op':OP_CAPTURE,'capture_cap':CAP_CAPTURE}
+          'capture_op':OP_CAPTURE,'capture_cap':CAP_CAPTURE,'recovery_offset':Run.recovery_flags.offset,
+          'e2_op':OP_E2,'recovery_op':OP_RECOVERY_TEST,'e2_cap':CAP_E2,'recovery_cap':CAP_RECOVERY}
 with open('/out/web-abi.json') as f:
     assert json.load(f)==expected
 print('PASS Python/C ioctl ABI on real ARM64 Linux headers')

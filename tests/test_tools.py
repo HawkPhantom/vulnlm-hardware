@@ -86,7 +86,7 @@ class BuildInputTests(unittest.TestCase):
     def test_mmio_constants_match_rtl(self):
         text=(ROOT/'rtl/matvec_axil_ctrl.sv').read_text().lower()
         self.assertIn('4d565831',text)
-        self.assertIn('00010000',text)
+        self.assertIn('00010001',text)
         contract=(ROOT/'sw/include/kv260_contract.h').read_text()
         self.assertIn('KV_REG_LAST_OUTCOME 0x094',contract)
 

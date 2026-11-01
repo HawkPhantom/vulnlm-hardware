@@ -1,6 +1,8 @@
 'use strict';
 (() => {
   const en = {
+    experiment:'Experiment', e1Option:'E1 · Late buffer reuse', e2Option:'E2 · Stale stream / receiver rearm',
+    e2Title:'Stale stream after receiver rearm',e2Description:'A remains the stream source. The idle receiver is rearmed for B; untagged A output reaches B’s destination.',
     intentional: 'Intentionally vulnerable', workspace: 'WORKSPACE', labTitle: 'Hardware Security Lab',
     tagline: 'Real requests, real DMA, observable product impact.', checking: 'Checking device',
     coreShape: 'INT8 core shape', servicePolicy: 'Service policy', scenario: 'HARDWARE SCENARIO',
@@ -65,6 +67,8 @@
     apiError: 'The board service could not be reached.', connectionLost: '{error} The hardware request is not considered cancelled; check its state when connectivity returns.',
   };
   const tr = {
+    experiment:'Deney', e1Option:'E1 · Geç tampon yazısı', e2Option:'E2 · Eski akış / alıcıyı yeniden kurma',
+    e2Title:'Yeniden kurulan alıcıda eski akış',e2Description:'Kaynak hâlâ A’dır. Boş alıcı B için kurulur; A’nın kimliksiz akışı B’nin hedefine ulaşır.',
     intentional:'Kasıtlı zafiyetli laboratuvar',workspace:'ÇALIŞMA ALANI',labTitle:'Donanım Güvenliği Labı',tagline:'Gerçek istekler, gerçek DMA, gözlenebilir ürün etkisi.',checking:'Aygıt kontrol ediliyor',
     coreShape:'INT8 çekirdek boyutu',servicePolicy:'Hizmet politikası',scenario:'DONANIM SENARYOSU',scenarioTitle:'Gecikmiş tampon kullanımı',scenarioDescription:'A zaman aşımına uğrar. Tampon B’ye verilir. A’nın gecikmiş yazısı devirden sonra gelir.',
     boundary:'Aşılan sınır',boundaryText:'Tamamlanan bir hesap, güncel isteğin sonucu olmayabilir.',policy:'HİZMET POLİTİKASI',p0:'Zafiyetli hizmet',p0Detail:'Erken yeniden kullan. Geç sonucu B olarak kabul et.',p1:'Kimlik denetimi',p1Detail:'A yanıtını reddet; bellek etkisini ayrıca gözle.',p2:'Korumalı hizmet',p2Detail:'Eski erişimleri bitirmeden tamponu B’ye verme.',

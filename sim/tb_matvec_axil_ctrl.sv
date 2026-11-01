@@ -6,6 +6,10 @@ module tb_matvec_axil_ctrl;
     always #5 aclk = ~aclk;
     `include "axil_signals.svh"
     wire core_start_valid, irq;
+    wire abort_drain, recovery_release;
+    wire receive_hold;
+    logic recovery_active=0,recovery_drained=0;
+    logic [31:0] recovery_count=0,stream_state=0,stream_output_beats=0;
     wire [31:0] cfg_job_id, cfg_generation, cfg_delay_cycles;
     logic core_start_ready = 1, core_busy = 0, core_done = 0, core_fault = 0;
     logic [2:0] core_error_code = 0;
@@ -45,7 +49,7 @@ module tb_matvec_axil_ctrl;
     initial begin
         reset_all();
         bus.expect_reg(12'h000, 32'h4d565831);
-        bus.expect_reg(12'h004, 32'h00010000);
+        bus.expect_reg(12'h004, 32'h00010001);
         bus.expect_reg(12'h00c, 2);
         bus.expect_reg(12'h030, 64);
         bus.expect_reg(12'h034, 64);

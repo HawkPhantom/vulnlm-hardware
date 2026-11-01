@@ -1,6 +1,10 @@
 # VulnLM Hardware
 
-Cyberdes donanım güvenliği laboratuvarı. Arayüz İngilizce açılır; EN/TR dil seçimi sunar. Gerçek KV260 DMA çıktısıyla, önceki isteğin sonucunun yeni isteğe verilmesinin ürün kararını nasıl değiştirebildiğini gösterir. [Arayüzü kartta çalıştırma](docs/INTERFACE.md) ve [güncel arayüz doğrulaması](results/interface/RAPOR.md).
+Cyberdes donanım güvenliği laboratuvarı. Arayüz İngilizce açılır; EN/TR dil seçimi sunar. Gerçek KV260 DMA çıktısıyla, önceki isteğin sonucunun yeni isteğe verilmesinin ürün kararını nasıl değiştirebildiğini gösterir. [Arayüzü kartta çalıştırma](docs/INTERFACE.md) ve [arayüz doğrulama kaydı](results/interface/RAPOR.md).
+
+![VulnLM Hardware](results/interface/vulnlm-hardware.png)
+
+Otomatik abort/drain reset ve gerçek aygıtta E2 alıcı yeniden kurma yolu eklendi. [Toparlanma ve E2 rehberi](docs/RECOVERY_E2.md), [güncel doğrulama](results/recovery/RAPOR.md).
 
 FPGA tasarımı ve `allow_lab=1` ile yüklenmiş güncel sürücü hazır olduğunda, kartta:
 
@@ -20,6 +24,7 @@ Hesaplama çekirdeği, AXI-Lite kontrolü, E1/E2 simülasyonları, Vivado SG DMA
 | --- | --- |
 | `rtl/axis_int8_matvec.sv` | Tek iş çalıştıran, parametreli hesaplama çekirdeği |
 | `rtl/matvec_axil_ctrl.sv` | Bağımsız AW/W alımı, yapılandırma, kalıcı olaylar ve metrik kayıtları |
+| `rtl/matvec_recovery.sv` | Bekleyen beat’i koruyan, DMA paketlerini boşaltan yerel reset yöneticisi |
 | `rtl/kv260_matvec.sv` | Kontrol ile hesaplama çekirdeğini birleştiren üst modül |
 | `sim/tb_axis_int8_matvec.sv` | Bağımsız referans hesap, AXI kontrolleri ve hata/reset testleri |
 | `sim/axil_master_bfm.sv` | AXI-Lite test yöneticisi ve yanıt/protokol kontrolleri |
@@ -37,6 +42,7 @@ Hesaplama çekirdeği, AXI-Lite kontrolü, E1/E2 simülasyonları, Vivado SG DMA
 | `docs/INTERFACE.md` | Kartta arayüz kurulumu, deney akışı ve kanıt sözleşmesi |
 | `linux/kv260-secx.dtso` | Proje adres/IRQ/saatleriyle eşleşen FPGA device tree örtüsü |
 | `linux/meta-hardware-secx/` | Yocto/EDF/PetaLinux için modül ve kullanıcı aracı tarifleri |
+| `scripts/run_recovery_suite.py` | Kartta otomatik toparlanma ve üç E2 politikasının kabul testi |
 | `scripts/run_board_suite.py` | Temiz doğruluk geçişi, E1 pilotu ve koşu kayıtları |
 | `scripts/package_firmware.py` | Vivado çıktısını Bootgen/DT paketine dönüştürme |
 | `docs/RTL_ARAYUZU.md` | Paket biçimi, kontrol arayüzü ve zamanlama sözleşmesi |
@@ -87,7 +93,3 @@ Test düzeneği `$fatal` ile başarısız olur; başarılı çalıştırma boyut
 - Çevrim ve geri basınç sayaçları; yalnız son çıktı el sıkışmasından sonra bir çevrimlik `done`.
 
 Gerçek çalıştırma sonuçları ve araç bilgisi [SIMULASYON_SONUCLARI.md](SIMULASYON_SONUCLARI.md) dosyasına kaydedilir.
-
-## Kart entegrasyonunda sonraki adım
-
-Vivado bağlantı scripti ve Linux DMAengine istemcisi eklendi. Sıradaki aşama bunları [kurulum rehberiyle](docs/SISTEM_KURULUMU.md) gerçek araç/kart üzerinde doğrulamak. Çekirdeğin `done` sinyali son stream beat'inin kabulünü gösterir; DMA/DDR tamamlanması ayrıca doğrulanır. Vivado'nun tam sürümü ilk kart derlemesinde kaydedilecek. Sürücü normalde P2 uygular; kalıcı takılmada tamponu tutup çağrıyı bekletir. Otomatik resetle toparlanma ve gerçek kart E2 bu sürümde yoktur.

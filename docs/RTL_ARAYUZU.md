@@ -40,7 +40,7 @@ Başlangıç ayarları `start_valid` süresince el sıkışmaya kadar sabit tutu
 
 İş kabul edilmeden giriş tüketilmez. Tam giriş paketi doğrulanmadan hesap veya çıktı başlamaz. Giriş eksik kalır ve henüz `TLAST` gelmezse çekirdek RECEIVE durumunda bekler; yerleşik watchdog veya zaman aşımı kararı yoktur. Beklenen son beat'te `TLAST` yoksa hata oluşur. `TKEEP` ve `TLAST` aynı anda hatalıysa KEEP hatasına öncelik verilir.
 
-Hatalı paket FAULTED durumuna geçirir; otomatik paket boşaltma veya sonrakini arama yapılmaz. Giriş DMA'sı beklemede kalabilir. Kontrolcü, DMA/kaynak/FIFO için koordineli toparlanmayı ayrıca uygulamalıdır.
+Hatalı paket FAULTED durumuna geçirir; otomatik paket boşaltma veya sonrakini arama yapılmaz. Giriş DMA'sı beklemede kalabilir. Üst modüldeki matvec_recovery, hesap resetini DMA paket boşaltmasıyla koordine eder; [toparlanma sözleşmesi](RECOVERY_E2.md).
 
 ## Gecikme ve geri basınç
 
@@ -69,4 +69,4 @@ Reset kontrol durumunu, çıktı geçerliliğini ve sayaçları temizler; dahili
 
 Reset sırasında AXI çıkışının geri çekilmesi ancak bağlı veri yolunun da reset/flush protokolünde olduğu sistemde kullanılmalıdır. Bu modülde bağımsız bir `abort` komutu yoktur: bekleyen `TVALID`'i sıradan bir iptalle düşürmek AXI sözleşmesini bozar.
 
-Çekirdek bir AXI bellek master'ı değildir ve DDR adresi bilmez. Yerel `busy=0`, `done=1` veya reset tamamlanması, AXI DMA'nın önceki bellek yazılarının sona erdiğini kanıtlamaz. E1/E2 ve P2 için DMA ile kaynak/FIFO'nun birlikte izlenmesi sonraki entegrasyon aşamasının işidir.
+Çekirdek bir AXI bellek master'ı değildir ve DDR adresi bilmez. Yerel `busy=0`, `done=1` veya reset tamamlanması, AXI DMA'nın önceki bellek yazılarının sona erdiğini kanıtlamaz. E1/E2 ve P2 için DMA callback’leri ile kaynak/paket boşalması sürücü ve recovery yöneticisi tarafından birlikte izlenir.

@@ -8,7 +8,9 @@ import sys
 
 ABI = 1
 OP_RUN, OP_CAPTURE = 0, 2
+OP_E2, OP_RECOVERY_TEST = 3, 4
 CAP_CAPTURE = 1
+CAP_RECOVERY, CAP_E2 = 2, 4
 
 class Info(C.Structure):
     _fields_ = [(key, C.c_uint32) for key in (
@@ -21,8 +23,7 @@ class Run(C.Structure):
            ('input_bytes',C.c_uint32),('output_bytes',C.c_uint32),('status',C.c_int32)]
         + [(key,C.c_uint32) for key in (
             'timed_out','window_hit','changed_bytes','late_a_words','mock_bad_response',
-            'old_completion_rejected','guard_errors')]
-        + [('reserved_out',C.c_uint32*2)]
+            'old_completion_rejected','guard_errors','recovery_flags','recovery_count')]
         + [(key,C.c_uint64) for key in (
             'submit_ns','timeout_ns','handoff_ns','tx_done_ns','rx_done_ns','release_ns',
             'core_cycles','stall_cycles')])
@@ -32,7 +33,7 @@ GET_INFO = (2 << 30) | (C.sizeof(Info) << 16) | (ord('K') << 8)
 RUN = (3 << 30) | (C.sizeof(Run) << 16) | (ord('K') << 8) | 1
 
 def fields(value):
-    return {name:getattr(value,name) for name,_ in value._fields_ if name!='reserved_out'}
+    return {name:getattr(value,name) for name,_ in value._fields_}
 
 def ioctl_struct(fd, command, value):
     buffer=bytearray(bytes(value))
@@ -61,13 +62,19 @@ class Hardware:
     def __exit__(self,*_): self.close()
 
     def run(self, frame, *, job_id, generation, policy=2, delay_cycles=0,
-            timeout_ms=1000, capture=False):
+            timeout_ms=1000, capture=False, scenario='e1', recovery_test=False):
         if len(frame)!=self.info.input_bytes: raise ValueError('Frame length mismatch')
         if capture and not self.info.capabilities & CAP_CAPTURE:
             raise OSError('The driver lacks frame capture; rebuild the module.')
+        if scenario not in ('e1','e2'): raise ValueError('Unknown scenario')
+        if scenario=='e2' and not self.info.capabilities & CAP_E2:
+            raise OSError('The driver lacks real-device E2 support.')
+        if recovery_test and not self.info.capabilities & CAP_RECOVERY:
+            raise OSError('The driver lacks automatic recovery support.')
         source=C.create_string_buffer(frame,len(frame))
         output=C.create_string_buffer(self.info.output_bytes)
-        run=Run(abi=ABI,op=OP_CAPTURE if capture else OP_RUN,policy=policy,
+        operation=OP_RECOVERY_TEST if recovery_test else OP_E2 if scenario=='e2' else OP_CAPTURE if capture else OP_RUN
+        run=Run(abi=ABI,op=operation,policy=policy,
                 job_id=job_id,generation=generation,delay_cycles=delay_cycles,
                 timeout_ms=timeout_ms,input_ptr=C.addressof(source),output_ptr=C.addressof(output),
                 input_bytes=len(frame),output_bytes=len(output))

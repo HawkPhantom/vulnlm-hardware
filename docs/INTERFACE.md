@@ -32,7 +32,7 @@ Open <http://127.0.0.1:8080/> on the Mac. Stop any existing local preview on por
 
 ## Run the experiment
 
-Enter a part name and four deviation measurements for request B. Each measurement is an integer from 0 (ideal) to 100. The previous request A and timing settings can be expanded on the left.
+Select E1 (late buffer reuse) or E2 (stale stream after idle receiver rearm). E2 keeps A as the source while P0/P1 assign the new receive destination to B; P2 retains A ownership until drain. Enter a part name and four deviation measurements for request B. Each measurement is an integer from 0 (ideal) to 100. The previous request A and timing settings can be expanded on the left.
 
 The intentionally simple rule is:
 
@@ -60,7 +60,7 @@ The default requested delay is 50 million cycles (about 500 ms at the design's 1
 
 `web/hardware.py` opens the Linux character device and uses the C-compatible ioctl ABI. `web/product.py` supplies real input frames and implements the deliberately vulnerable reply association. The frontend displays that service result; it never substitutes a CPU score for a hardware result. There is no simulator, replay-file or random-result runtime backend.
 
-`KV_OP_CAPTURE=2` and `KV_CAP_CAPTURE=1` are required. The info structure remains 32 bytes and the run structure 160 bytes; the former reserved info word advertises capture support. An old driver without that capability is refused. Capture returns A-tagged diagnostic bytes only after DMA drains, including on an observed timeout. Normal RUN still rejects late output. P0/P1 exercise a private kernel-owned lab buffer, not arbitrary physical addresses or another process's memory.
+`KV_OP_CAPTURE=2` and `KV_CAP_CAPTURE=1` are required. E2 uses operation 3 and capability bit 2. Automatic reset advertises capability bit 1 and uses operation 4 for acceptance testing. Rebuild the FPGA image and driver together: the new FPGA version is `0x00010001`. The two former reserved run-result words now hold `recovery_flags` and `recovery_count`. The info structure remains 32 bytes and the run structure 160 bytes; the former reserved info word advertises capture support. An old driver without that capability is refused. Capture returns A-tagged diagnostic bytes only after DMA drains, including on an observed timeout. Normal RUN still rejects late output. P0/P1 exercise a private kernel-owned lab buffer, not arbitrary physical addresses or another process's memory.
 
 The evidence panel distinguishes the requested B, actual source job, hardware control, delivered score, product decision, raw A output and DMA hashes. A different score, a changed decision and a wrong request association are separate outcomes. JSON downloads preserve nanosecond timestamps as decimal strings, avoiding JavaScript precision loss.
 
@@ -68,7 +68,7 @@ Records are stored under `results/board-ui/` with directory mode 0700 and file m
 
 ## Failure behaviour and remaining validation
 
-Missing hardware, wrong ABI, disabled lab mode or a non-ready device prevents execution. An ioctl runs in a separate process so the HTTP server remains responsive. If DMA never drains, that worker and the device remain occupied; the service does not kill the worker and free DMA-owned memory. Proven reset recovery is not implemented. Follow the system guide's controlled recovery procedure rather than unloading an active module.
+Missing hardware, wrong ABI, disabled lab mode or a non-ready device prevents execution. An ioctl runs in a separate process so the HTTP server remains responsive. Normal timeout automatically resets compute, drains input, pads the remaining output packet and preserves any stalled beat. The driver releases reset only after both DMA callbacks synchronize and packet drain is confirmed. Aborted output is discarded. E1/E2 have an extra observation grace period (default 2 seconds). If the AXI/DDR fabric itself never completes, memory remains pinned and the device stays occupied; the service does not kill the worker to free DMA-owned memory. See [recovery/E2 operation and acceptance](RECOVERY_E2.md).
 
 Local compilation, ABI, service, browser-contract and offline browser checks are recorded in [the interface report](../results/interface/RAPOR.md). Unit fixtures test response handling; they are not card measurements. Vivado synthesis/implementation and physical KV260 execution still need to be performed on the user's equipment.
 

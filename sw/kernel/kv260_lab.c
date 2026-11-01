@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0
-/* Single-device research service. Normal path is P2; unsafe E1 policies only
- * touch private lab DMA scratch. Capture accepts the caller's own frame.
- * Never terminates an active DMA merely
- * because a deadline expired. A permanently stuck path retains its buffers
- * and blocks this ioctl/remove until it drains (fail closed, not recovery). */
+/* Private-buffer lab. Recovery resets only compute, drains the existing DMA
+ * packets, synchronizes callbacks, then releases reset. AXI/DDR is never reset
+ * underneath pending transactions. E2 late-arms an idle receiver for stale A. */
 #include <linux/module.h>
 #include <linux/platform_device.h>
 #include <linux/of.h>
@@ -31,6 +29,9 @@
 static bool allow_lab;
 module_param(allow_lab, bool, 0400);
 MODULE_PARM_DESC(allow_lab, "Enable private-buffer E1 experiments and frame capture");
+static unsigned int recovery_grace_ms = 2000;
+module_param(recovery_grace_ms, uint, 0400);
+MODULE_PARM_DESC(recovery_grace_ms, "Extra E1/E2 observation time before abort/drain reset (1..60000 ms)");
 
 struct kv_done {
     struct completion event;
@@ -117,8 +118,9 @@ static int kv_execute(struct kv_dev *d, struct kv_run *run)
     u32 seq, terminal, status, r, i;
     u8 *bytes = d->output + GUARD;
     __le32 *words = (void *)bytes;
-    u64 deadline;
-    bool expired = false, handed = false;
+    u64 deadline, recovery_deadline;
+    bool expired = false, handed = false, recovering = false;
+    bool rx_armed = run->op != KV_OP_E2;
     int ret;
 
     status = readl(d->regs + KV_REG_STATUS);
@@ -131,6 +133,11 @@ static int kv_execute(struct kv_dev *d, struct kv_run *run)
     memset(d->output, GUARD_BYTE, d->info.output_bytes + 2 * GUARD);
     memset(bytes, B_BYTE, d->info.output_bytes);
     seq = readl(d->regs + KV_REG_LAST_SEQ);
+    /* AXI DMA may accept beats even before S2MM is armed. Hold the source
+     * upstream of the DMA until the intended receive descriptor is issued. */
+    writel(run->op == KV_OP_E2, d->regs + KV_REG_RECEIVE_HOLD);
+    readl(d->regs + KV_REG_RECEIVE_HOLD);
+    run->recovery_count = readl(d->regs + KV_REG_RECOVERY_COUNT);
     writel(0, d->regs + KV_REG_IRQ_ENABLE); /* Poll terminal records; DMA has IRQs. */
     writel(3, d->regs + KV_REG_IRQ_STATUS);
     writel(run->job_id, d->regs + KV_REG_JOB);
@@ -138,15 +145,19 @@ static int kv_execute(struct kv_dev *d, struct kv_run *run)
     writel(run->delay_cycles, d->regs + KV_REG_DELAY);
     dma_wmb();
     /* Prepare+submit each descriptor as a pair. Neither channel is issued yet. */
-    ret = kv_submit(d->rx, d->output_dma + GUARD, d->info.output_bytes,
+    init_completion(&rx_done.event);
+    rx_done.ns = 0; rx_done.result = DMA_TRANS_ABORTED; rx_done.residue = 0;
+    if (rx_armed) {
+        ret = kv_submit(d->rx, d->output_dma + GUARD, d->info.output_bytes,
                     DMA_DEV_TO_MEM, &rx_done, &rx_cookie);
-    if (ret)
-        return ret;
+        if (ret)
+            return ret;
+    }
     ret = kv_submit(d->tx, d->input_dma, d->info.input_bytes,
                     DMA_MEM_TO_DEV, &tx_done, &tx_cookie);
     if (ret) {
         /* RX has never been issued: no memory or stream activity to drain. */
-        if (dmaengine_terminate_sync(d->rx)) {
+        if (rx_armed && dmaengine_terminate_sync(d->rx)) {
             atomic_set(&d->state, KV_STATE_BROKEN);
             /* Keep the callback storage alive if termination cannot be proven. */
             wait_for_completion(&rx_done.event);
@@ -157,7 +168,10 @@ static int kv_execute(struct kv_dev *d, struct kv_run *run)
     atomic_set(&d->state, KV_STATE_RUNNING);
     run->submit_ns = ktime_get_ns();
     deadline = run->submit_ns + (u64)run->timeout_ms * NSEC_PER_MSEC;
-    dma_async_issue_pending(d->rx);
+    recovery_deadline = deadline + (run->op == KV_OP_RUN || run->op == KV_OP_RECOVERY_TEST ?
+                                   0 : (u64)recovery_grace_ms * NSEC_PER_MSEC);
+    if (rx_armed)
+        dma_async_issue_pending(d->rx);
     writel(1, d->regs + KV_REG_CONTROL);
     /* Flush posted control before enabling input producer. */
     readl(d->regs + KV_REG_STATUS);
@@ -179,9 +193,56 @@ static int kv_execute(struct kv_dev *d, struct kv_run *run)
                 }
             }
         }
-        /* A deadline does not cancel hardware. No signal/close/unbind can free
-         * these buffers while callbacks or DMA can still access them. A hung
-         * engine deliberately leaves this call blocked and state quarantined. */
+        if (run->op == KV_OP_E2 && !rx_armed && expired && !recovering &&
+            completion_done(&tx_done.event) &&
+            (readl(d->regs + KV_REG_STREAM_STATE) & 1) &&
+            readl(d->regs + KV_REG_STREAM_OUTPUT) == 0) {
+            /* No A RX descriptor was issued, hence no RX memory transaction
+             * exists to cancel. Source A remains held VALID throughout rearm.
+             * This is receiver rearm, not a reset of an active DMA master. */
+            dmaengine_synchronize(d->tx);
+            ret = dmaengine_terminate_sync(d->rx);
+            if (!ret) {
+                ret = kv_submit(d->rx, d->output_dma + GUARD, d->info.output_bytes,
+                                DMA_DEV_TO_MEM, &rx_done, &rx_cookie);
+            }
+            if (ret) {
+                atomic_set(&d->state, KV_STATE_BROKEN);
+                return ret; /* TX is synchronized; RX was never issued. */
+            }
+            run->window_hit = 1;
+            run->old_completion_rejected = run->policy != 0;
+            if (run->policy < 2) {
+                run->handoff_ns = ktime_get_ns(); handed = true;
+                memset(bytes, B_BYTE, d->info.output_bytes); dma_wmb();
+            }
+            rx_armed = true;
+            dma_async_issue_pending(d->rx);
+            writel(0, d->regs + KV_REG_RECEIVE_HOLD);
+            readl(d->regs + KV_REG_RECEIVE_HOLD);
+            /* Give the newly armed receiver its observation interval. */
+            recovery_deadline = ktime_get_ns() + (u64)recovery_grace_ms * NSEC_PER_MSEC;
+        }
+        if (!recovering && ktime_get_ns() >= recovery_deadline) {
+            if (!rx_armed) {
+                ret = kv_submit(d->rx, d->output_dma + GUARD, d->info.output_bytes,
+                                DMA_DEV_TO_MEM, &rx_done, &rx_cookie);
+                if (ret) {
+                    /* MM2S can still own input/callback storage: retain both
+                     * until it finishes, then leave the device broken. */
+                    atomic_set(&d->state, KV_STATE_BROKEN);
+                    wait_for_completion(&tx_done.event);
+                    dmaengine_synchronize(d->tx);
+                    return ret;
+                }
+                rx_armed = true; dma_async_issue_pending(d->rx);
+            }
+            recovering = true;
+            writel(1, d->regs + KV_REG_RECOVERY);
+            readl(d->regs + KV_REG_RECOVERY_STATUS);
+        }
+        /* The supervisor drains stream packets. A nonresponding DDR/fabric
+         * still retains memory: stream reset cannot prove AXI completion. */
         msleep(1);
     }
     dmaengine_synchronize(d->tx);
@@ -192,6 +253,35 @@ static int kv_execute(struct kv_dev *d, struct kv_run *run)
         /* Completion was already observed: no early-handoff window to test. */
     }
     dma_rmb();
+    if (recovering) {
+        u32 recovery_status, count = run->recovery_count;
+        run->guard_errors = kv_guards(d);
+        ret = readl_poll_timeout(d->regs + KV_REG_RECOVERY_STATUS, recovery_status,
+                                 recovery_status == 3, 10, 100000);
+        if (ret || run->guard_errors || tx_done.result != DMA_TRANS_NOERROR ||
+            rx_done.result != DMA_TRANS_NOERROR || tx_done.residue || rx_done.residue ||
+            dma_async_is_tx_complete(d->tx, tx_cookie, NULL, NULL) != DMA_COMPLETE ||
+            dma_async_is_tx_complete(d->rx, rx_cookie, NULL, NULL) != DMA_COMPLETE) {
+            atomic_set(&d->state, KV_STATE_BROKEN);
+            run->status = -EIO; run->release_ns = ktime_get_ns(); return 0;
+        }
+        /* Both DMA callbacks have drained and synchronized. Only now may the
+         * compute reset be released and a new job own these buffers. */
+        writel(2, d->regs + KV_REG_RECOVERY);
+        ret = readl_poll_timeout(d->regs + KV_REG_RECOVERY_COUNT, terminal,
+                                 terminal == count + 1, 10, 100000);
+        status = readl(d->regs + KV_REG_STATUS);
+        run->recovery_count = terminal;
+        run->release_ns = ktime_get_ns();
+        if (ret || readl(d->regs + KV_REG_RECOVERY_STATUS) || (status & 7) != 2) {
+            atomic_set(&d->state, KV_STATE_BROKEN); run->status = -EIO;
+        } else {
+            atomic_set(&d->state, KV_STATE_IDLE);
+            run->recovery_flags = KV_RECOVERY_DRAINED_RESET;
+            run->window_hit = 0; run->status = -ETIMEDOUT;
+        }
+        return 0; /* Never expose padding/discarded data as a product result. */
+    }
     ret = readl_poll_timeout(d->regs + KV_REG_LAST_SEQ, terminal,
                             terminal != seq, 10, 100000);
     status = readl(d->regs + KV_REG_STATUS);
@@ -232,9 +322,10 @@ static int kv_execute(struct kv_dev *d, struct kv_run *run)
             memset(bytes, B_BYTE, d->info.output_bytes);
         }
     }
-    if (run->op == KV_OP_CAPTURE && run->timed_out && run->window_hit && run->policy == 2)
+    if ((run->op == KV_OP_CAPTURE || run->op == KV_OP_E2) &&
+        run->timed_out && run->window_hit && run->policy == 2)
         run->handoff_ns = ktime_get_ns();
-    if (run->op == KV_OP_CAPTURE && handed)
+    if ((run->op == KV_OP_CAPTURE || run->op == KV_OP_E2) && handed)
         for (i = 0; i < d->info.output_bytes; i++)
             run->changed_bytes += bytes[i] != B_BYTE;
     run->release_ns = ktime_get_ns();
@@ -244,7 +335,8 @@ static int kv_execute(struct kv_dev *d, struct kv_run *run)
      * successful drain. Product association/rejection is the service's job.
      * Normal RUN still never returns late data as a successful result. */
     if (((!run->status && run->op == KV_OP_RUN) ||
-         (run->op == KV_OP_CAPTURE && (run->status == 0 || run->status == -ETIMEDOUT))) &&
+         ((run->op == KV_OP_CAPTURE || run->op == KV_OP_E2) &&
+          (run->status == 0 || run->status == -ETIMEDOUT))) &&
         copy_to_user(u64_to_user_ptr(run->output_ptr), bytes, d->info.output_bytes))
         return -EFAULT;
     return 0;
@@ -277,10 +369,10 @@ static long kv_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
         return -ENOTTY;
     if (copy_from_user(&run, user, sizeof(run)))
         return -EFAULT;
-    if (run.abi != KV_ABI_VERSION || run.op > KV_OP_CAPTURE || run.policy > 2 ||
+    if (run.abi != KV_ABI_VERSION || run.op > KV_OP_RECOVERY_TEST || run.policy > 2 ||
         run.reserved || run.timeout_ms < 1 || run.timeout_ms > 60000 ||
         (run.op == KV_OP_RUN && run.policy != 2) ||
-        ((run.op == KV_OP_RUN || run.op == KV_OP_CAPTURE) &&
+        ((run.op != KV_OP_E1) &&
          (!run.input_ptr || !run.output_ptr || run.input_bytes != d->info.input_bytes ||
           run.output_bytes != d->info.output_bytes)))
         return -EINVAL;
@@ -329,7 +421,7 @@ static int kv_probe(struct platform_device *pdev)
     d->info.input_bytes = readl(d->regs + KV_REG_INPUT_BYTES);
     d->info.output_bytes = readl(d->regs + KV_REG_OUTPUT_BYTES);
     d->info.lab_enabled = allow_lab;
-    d->info.capabilities = KV_CAP_CAPTURE;
+    d->info.capabilities = KV_CAP_CAPTURE | KV_CAP_RECOVERY | KV_CAP_E2;
     if (!kv_valid_shape(d->info.rows, d->info.cols) ||
         d->info.input_bytes != (d->info.rows + 1) * d->info.cols ||
         d->info.output_bytes != d->info.rows * 4 ||
@@ -337,7 +429,9 @@ static int kv_probe(struct platform_device *pdev)
         ret = -EINVAL; goto free_d;
     }
     /* Bind only at boot/after a clean FPGA load: no unknown prior DMA owner. */
-    if ((readl(d->regs + KV_REG_STATUS) & 7) != 2 ||
+    if (!recovery_grace_ms || recovery_grace_ms > 60000 ||
+        readl(d->regs + KV_REG_FEATURES) != 3 ||
+        (readl(d->regs + KV_REG_STATUS) & 7) != 2 ||
         readl(d->regs + KV_REG_LAST_SEQ) != 0) { ret = -EBUSY; goto free_d; }
     d->tx = dma_request_chan(&pdev->dev, "tx");
     if (IS_ERR(d->tx)) { ret = PTR_ERR(d->tx); goto free_d; }

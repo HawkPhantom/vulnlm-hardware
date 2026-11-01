@@ -24,7 +24,14 @@
 #define KV_REG_LAST_STALL 0x08c
 #define KV_REG_LAST_OUTCOME 0x094
 #define KV_DEVICE_ID 0x4d565831U
-#define KV_DEVICE_VERSION 0x00010000U
+#define KV_DEVICE_VERSION 0x00010001U
+#define KV_REG_RECOVERY 0x098
+#define KV_REG_RECOVERY_STATUS 0x09c
+#define KV_REG_RECOVERY_COUNT 0x0a0
+#define KV_REG_FEATURES 0x0a4
+#define KV_REG_STREAM_STATE 0x0a8
+#define KV_REG_STREAM_OUTPUT 0x0ac
+#define KV_REG_RECEIVE_HOLD 0x0b0
 
 /* One in-flight job, no stream FIFOs in this board design. Reuse requires all
  * three completions plus synchronized callbacks, matching terminal identity.

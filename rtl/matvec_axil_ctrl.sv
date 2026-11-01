@@ -30,6 +30,10 @@ module matvec_axil_ctrl #(
     input  wire         s_axi_rready,
 
     output logic        core_start_valid,
+    output logic        abort_drain, recovery_release,
+    output logic        receive_hold,
+    input wire          recovery_active, recovery_drained,
+    input wire [31:0]   recovery_count, stream_state, stream_output_beats,
     input  wire         core_start_ready,
     output logic [31:0] cfg_job_id,
     output logic [31:0] cfg_generation,
@@ -58,6 +62,10 @@ module matvec_axil_ctrl #(
     localparam logic [11:0] R_SNAP_SEQ = 12'h044, R_SNAP_FIRST = 12'h048;
     localparam logic [11:0] R_SNAP_LAST = 12'h068, R_LAST_SEQ = 12'h06c;
     localparam logic [11:0] R_LAST_FIRST = 12'h070, R_LAST_LAST = 12'h094;
+    localparam logic [11:0] R_RECOVERY = 12'h098, R_RECOVERY_STATUS = 12'h09c;
+    localparam logic [11:0] R_RECOVERY_COUNT = 12'h0a0, R_FEATURES = 12'h0a4;
+    localparam logic [11:0] R_STREAM_STATE = 12'h0a8, R_STREAM_OUTPUT = 12'h0ac;
+    localparam logic [11:0] R_RECEIVE_HOLD = 12'h0b0;
 
     logic aw_pending, w_pending;
     logic [11:0] awaddr_hold;
@@ -76,7 +84,7 @@ module matvec_axil_ctrl #(
                              {8{wstrb_hold[1]}}, {8{wstrb_hold[0]}}};
     wire [31:0] write_bits = wdata_hold & write_mask;
     wire [31:0] status_word = {27'd0, irq_pending[1], irq_pending[0], core_fault,
-                              (core_start_ready && !core_start_valid),
+                              (core_start_ready && !core_start_valid && !recovery_active),
                               (core_busy || core_start_valid)};
 
     // PROT is intentionally not an access-control mechanism in this peripheral.
@@ -110,7 +118,14 @@ module matvec_axil_ctrl #(
         end else begin
             case (s_axi_araddr)
                 R_ID: read_data = 32'h4d565831; // MVX1
-                R_VERSION: read_data = 32'h00010000;
+                R_VERSION: read_data = 32'h00010001;
+                R_RECOVERY: read_data = 0;
+                R_RECOVERY_STATUS: read_data = {30'd0,recovery_drained,recovery_active};
+                R_RECOVERY_COUNT: read_data = recovery_count;
+                R_FEATURES: read_data = 3;
+                R_RECEIVE_HOLD: read_data = {31'd0,receive_hold};
+                R_STREAM_STATE: read_data = stream_state;
+                R_STREAM_OUTPUT: read_data = stream_output_beats;
                 R_CONTROL, R_SNAPSHOT: read_data = 0;
                 R_STATUS: read_data = status_word;
                 R_JOB: read_data = cfg_job_id;
@@ -146,6 +161,7 @@ module matvec_axil_ctrl #(
             s_axi_rresp <= OKAY;
             s_axi_rdata <= 0;
             core_start_valid <= 0;
+            abort_drain <= 0; recovery_release <= 0; receive_hold <= 0;
             cfg_job_id <= 0;
             cfg_generation <= 0;
             cfg_delay_cycles <= 0;
@@ -158,6 +174,7 @@ module matvec_axil_ctrl #(
             for (index = 0; index < 10; index = index + 1) completion[index] <= 0;
         end else begin
             core_start_valid <= 0;
+            abort_drain <= 0; recovery_release <= 0;
             fault_seen <= core_fault;
             if (s_axi_bvalid && s_axi_bready) s_axi_bvalid <= 0;
             if (s_axi_rvalid && s_axi_rready) s_axi_rvalid <= 0;
@@ -190,13 +207,31 @@ module matvec_axil_ctrl #(
                             if (write_bits[31:1] != 0) begin
                                 s_axi_bresp <= SLVERR;
                             end else if (write_bits[0]) begin
-                                if (core_start_ready && !core_start_valid && !core_fault)
+                                if (core_start_ready && !core_start_valid && !core_fault &&
+                                    !recovery_active && !abort_drain && !recovery_release)
                                     core_start_valid <= 1;
                                 else
                                     s_axi_bresp <= SLVERR;
                             end
                         end
                         R_JOB: cfg_job_id <= merge_bytes(cfg_job_id, wdata_hold, wstrb_hold);
+                        R_RECOVERY: begin
+                            if(write_bits==1 && !recovery_active && !core_start_valid)
+                                abort_drain<=1;
+                            else if(write_bits==2 && recovery_active && recovery_drained) begin
+                                recovery_release<=1;
+                                receive_hold<=0;
+                            end
+                            else if(write_bits!=0) s_axi_bresp<=SLVERR;
+                        end
+                        R_RECEIVE_HOLD: begin
+                            if(wstrb_hold[0]) begin
+                                if(write_bits[31:1]!=0 || (write_bits[0] &&
+                                    (!core_start_ready || core_busy || core_start_valid || recovery_active)))
+                                    s_axi_bresp<=SLVERR;
+                                else receive_hold<=write_bits[0];
+                            end
+                        end
                         R_GEN: cfg_generation <= merge_bytes(cfg_generation, wdata_hold, wstrb_hold);
                         R_DELAY: cfg_delay_cycles <= merge_bytes(cfg_delay_cycles, wdata_hold, wstrb_hold);
                         R_IRQ_ENABLE: begin

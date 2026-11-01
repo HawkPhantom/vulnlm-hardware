@@ -1,0 +1,61 @@
+rm -f kv260ctl
+cc -O2 -g -std=c11 -Wall -Wextra -Werror -I../include -o kv260ctl kv260ctl.c
+./kv260ctl selftest
+PASS host contract, signed reference, endian and ABI (no hardware)
+make -C /usr/src/linux-headers-6.12.113+deb13-arm64 M=/work/src/sw/kernel modules
+make[1]: Entering directory '/usr/src/linux-headers-6.12.113+deb13-arm64'
+  CC [M]  /work/src/sw/kernel/kv260_lab.o
+  MODPOST /work/src/sw/kernel/Module.symvers
+  CC [M]  /work/src/sw/kernel/kv260_lab.mod.o
+  CC [M]  /work/src/sw/kernel/.module-common.o
+  LD [M]  /work/src/sw/kernel/kv260_lab.ko
+  BTF [M] /work/src/sw/kernel/kv260_lab.ko
+make[1]: Leaving directory '/usr/src/linux-headers-6.12.113+deb13-arm64'
+PASS Python/C ioctl ABI on real ARM64 Linux headers
+test_cross_origin_and_missing_token_are_rejected (test_interface.HttpTests.test_cross_origin_and_missing_token_are_rejected) ... 127.0.0.1 - - [01/Nov/2026 10:07:02] "POST /api/jobs HTTP/1.1" 403 -
+127.0.0.1 - - [01/Nov/2026 10:07:02] "POST /api/jobs HTTP/1.1" 403 -
+ok
+test_missing_hardware_rejects_job_without_starting_worker (test_interface.HttpTests.test_missing_hardware_rejects_job_without_starting_worker) ... 127.0.0.1 - - [01/Nov/2026 10:07:02] "POST /api/jobs HTTP/1.1" 503 -
+ok
+test_nanosecond_timestamps_survive_javascript_json (test_interface.HttpTests.test_nanosecond_timestamps_survive_javascript_json) ... ok
+test_page_and_real_device_offline_state (test_interface.HttpTests.test_page_and_real_device_offline_state) ... 127.0.0.1 - - [01/Nov/2026 10:07:03] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 10:07:03] "GET /api/device HTTP/1.1" 200 -
+ok
+test_rebinding_host_and_path_escape_are_rejected (test_interface.HttpTests.test_rebinding_host_and_path_escape_are_rejected) ... 127.0.0.1 - - [01/Nov/2026 10:07:04] "GET /api/session HTTP/1.1" 403 -
+127.0.0.1 - - [01/Nov/2026 10:07:04] "GET /../sw/kernel/kv260_lab.c HTTP/1.1" 404 -
+ok
+test_supplied_logo_and_language_script_are_served (test_interface.HttpTests.test_supplied_logo_and_language_script_are_served) ... 127.0.0.1 - - [01/Nov/2026 10:07:04] "GET /assets/cyberdes-logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 10:07:04] "GET /i18n.js HTTP/1.1" 200 -
+ok
+test_actual_frame_encoding_matches_independent_score (test_interface.ProductTests.test_actual_frame_encoding_matches_independent_score) ... ok
+test_corrupt_hardware_capture_prevents_product_reply (test_interface.ProductTests.test_corrupt_hardware_capture_prevents_product_reply) ... ok
+test_e2_uses_real_receiver_rearm_operation_for_each_policy (test_interface.ProductTests.test_e2_uses_real_receiver_rearm_operation_for_each_policy) ... ok
+test_failed_control_prevents_fault_injection (test_interface.ProductTests.test_failed_control_prevents_fault_injection) ... ok
+test_hardware_bridge_encodes_e2_and_recovery_ioctl_operations (test_interface.ProductTests.test_hardware_bridge_encodes_e2_and_recovery_ioctl_operations) ... ok
+test_invalid_inputs_are_rejected (test_interface.ProductTests.test_invalid_inputs_are_rejected) ... ok
+test_invalid_p2_handoff_is_not_success (test_interface.ProductTests.test_invalid_p2_handoff_is_not_success) ... ok
+test_missed_window_never_delivers_an_artificial_bad_result (test_interface.ProductTests.test_missed_window_never_delivers_an_artificial_bad_result) ... ok
+test_offline_device_has_no_result_fallback (test_interface.ProductTests.test_offline_device_has_no_result_fallback) ... ok
+test_p0_delivers_captured_a_bytes_not_reference_b (test_interface.ProductTests.test_p0_delivers_captured_a_bytes_not_reference_b) ... ok
+test_p1_and_p2_execute_real_b_path_after_capture (test_interface.ProductTests.test_p1_and_p2_execute_real_b_path_after_capture) ... ok
+test_python_abi_offsets (test_interface.ProductTests.test_python_abi_offsets) ... ok
+test_reset_padding_is_never_returned_as_product_output (test_interface.ProductTests.test_reset_padding_is_never_returned_as_product_output) ... ok
+test_unknown_scenario_is_rejected (test_interface.ProductTests.test_unknown_scenario_is_rejected) ... ok
+test_unsupported_e2_is_refused_before_any_dma_job (test_interface.ProductTests.test_unsupported_e2_is_refused_before_any_dma_job) ... ok
+test_real_spawned_worker_reports_missing_device_without_result (test_interface.WorkerTests.test_real_spawned_worker_reports_missing_device_without_result) ... ok
+test_acceptance_requires_reset_followups_and_all_e2_policies (test_recovery.AcceptanceTests.test_acceptance_requires_reset_followups_and_all_e2_policies) ... ok
+test_failed_followup_stops_before_e2_and_preserves_records (test_recovery.AcceptanceTests.test_failed_followup_stops_before_e2_and_preserves_records) ... ok
+test_missing_hardware_never_produces_acceptance (test_recovery.AcceptanceTests.test_missing_hardware_never_produces_acceptance) ... ok
+test_failed_clean_gate_never_starts_e1 (test_tools.BoardCollectorTests.test_failed_clean_gate_never_starts_e1) ... ok
+test_success_keeps_all_three_policies_and_hashes (test_tools.BoardCollectorTests.test_success_keeps_all_three_policies_and_hashes) ... ok
+test_window_misses_are_retained_and_followups_run (test_tools.BoardCollectorTests.test_window_misses_are_retained_and_followups_run) ... ok
+test_board_report_retains_failed_batches_and_missed_windows (test_tools.BuildInputTests.test_board_report_retains_failed_batches_and_missed_windows) ... ok
+test_missing_build_cannot_be_packaged (test_tools.BuildInputTests.test_missing_build_cannot_be_packaged) ... ok
+test_mmio_constants_match_rtl (test_tools.BuildInputTests.test_mmio_constants_match_rtl) ... ok
+test_project_tcl_is_complete (test_tools.BuildInputTests.test_project_tcl_is_complete) ... ok
+
+----------------------------------------------------------------------
+Ran 32 tests in 3.667s
+
+OK
+PASS real ARM64 kernel module build and overlay merge (fixture, no board)

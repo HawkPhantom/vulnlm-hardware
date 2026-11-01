@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "date_istanbul": "2026-10-31",
+  "date_istanbul": "2026-11-01",
   "scope": "controlled_simulation_E1",
   "simulator": "Icarus Verilog version 12.0 (stable) ()",
   "case_count": 36,
@@ -30,11 +30,11 @@
     },
     {
       "path": "rtl/matvec_axil_ctrl.sv",
-      "sha256": "250d815e0c2b38995cf85c31183f3f8f85d7ff9af74fc247a084bbc204ab8f0a"
+      "sha256": "4e6cca60bc4837e8b66e8d7a0327a1074f562c2789f46849b8120af50a1a3bbe"
     },
     {
       "path": "rtl/kv260_matvec.sv",
-      "sha256": "930615316c27a413619c2f6458c36a137b5aba4eb81b6135741625b27d6de53b"
+      "sha256": "a12677ea95a81956718cf78e88965138ab22083613d9462d144d37c9ac589a23"
     },
     {
       "path": "sim/axil_master_bfm.sv",

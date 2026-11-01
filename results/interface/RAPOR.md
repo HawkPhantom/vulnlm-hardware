@@ -2,6 +2,8 @@
 
 Date: **1 November 2026**. This report covers the real-device service, diagnostic capture ABI, interface and branding changes. Source fingerprints and check results are in [summary.json](summary.json). Earlier RTL/system results remain historical records in their own folders.
 
+This is the original interface verification snapshot. Subsequent automatic recovery and E2 changes are covered by [the newer verification record](../recovery/RAPOR.md). The screenshot below has been replaced with the user's supplied wide-screen image; it is an interface illustration, not hardware-run evidence.
+
 | Check | Result | Evidence |
 | --- | --- | --- |
 | C user-tool self-test and Python tests on macOS | PASS; 24 Python tests | [Host log](host-tests.log) |
@@ -21,8 +23,8 @@ The production backend opens the Linux character device and has no simulation or
 
 The supplied logo was copied unchanged. The navy/cyan workspace design follows the user's [VulnLM reference](https://github.com/cyberdes-security/vulnlm), commit `a4334f8a58cdba7480795a9986ce6c3894182c5e`; its license notice is retained under `docs/licenses/`.
 
-Browser visual verification used a 736-pixel-wide viewport with the responsive stacked layout. Wide-screen column arrangement is defined in the stylesheet; this report does not claim a manual wide-screen screenshot check.
+Original browser visual verification used a 736-pixel-wide viewport. The supplied replacement screenshot shows the wide-screen column layout.
 
-Reproduce the local checks with `make host-test`, `make ui-test` and `make linux-test`. The generic verification module must not be used as a binary replacement for a different board kernel. See [the run guide](../../docs/INTERFACE.md) for the matching FPGA/Linux requirements and board launch steps. Permanent DMA-stall recovery remains unimplemented; no actual hardware result or performance measurement is claimed here.
+Reproduce the local checks with `make host-test`, `make ui-test` and `make linux-test`. The generic verification module must not be used as a binary replacement for a different board kernel. See [the run guide](../../docs/INTERFACE.md) and [recovery/E2 guide](../../docs/RECOVERY_E2.md). No actual hardware result or performance measurement is claimed here.
 
 ![VulnLM Hardware in its verified offline state](vulnlm-hardware.png)

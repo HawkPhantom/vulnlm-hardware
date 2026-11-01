@@ -1,6 +1,6 @@
 # E1 tampon yeniden kullanım deneyi
 
-Tarih: 2026-10-31 · Icarus Verilog version 12.0 (stable) ()
+Tarih: 2026-11-01 · Icarus Verilog version 12.0 (stable) ()
 
 **36 kontrollü koşu, 12 eşleştirilmiş zamanlama/boyut koşulu.**
 P0 ve P1'de A'nın gecikmiş yazıları B'ye verilmiş tamponu değiştirdi. P1 eski tamamlanmayı reddetti fakat yazıları durdurmadı. P2, bu koşullarda eski erişimler bitene kadar tamponu bekleterek çapraz yazıyı önledi.
