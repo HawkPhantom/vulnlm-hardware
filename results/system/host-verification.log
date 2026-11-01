@@ -1,0 +1,16 @@
+/Applications/Xcode.app/Contents/Developer/usr/bin/make -C sw/user test
+./kv260ctl selftest
+PASS host contract, signed reference, endian and ABI (no hardware)
+python3 -m unittest discover -s tests -p 'test_*.py' -v
+test_failed_clean_gate_never_starts_e1 (test_tools.BoardCollectorTests.test_failed_clean_gate_never_starts_e1) ... ok
+test_success_keeps_all_three_policies_and_hashes (test_tools.BoardCollectorTests.test_success_keeps_all_three_policies_and_hashes) ... ok
+test_window_misses_are_retained_and_followups_run (test_tools.BoardCollectorTests.test_window_misses_are_retained_and_followups_run) ... ok
+test_board_report_retains_failed_batches_and_missed_windows (test_tools.BuildInputTests.test_board_report_retains_failed_batches_and_missed_windows) ... ok
+test_missing_build_cannot_be_packaged (test_tools.BuildInputTests.test_missing_build_cannot_be_packaged) ... ok
+test_mmio_constants_match_rtl (test_tools.BuildInputTests.test_mmio_constants_match_rtl) ... ok
+test_project_tcl_is_complete (test_tools.BuildInputTests.test_project_tcl_is_complete) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 1.918s
+
+OK

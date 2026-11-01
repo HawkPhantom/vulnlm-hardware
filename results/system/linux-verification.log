@@ -1,0 +1,26 @@
+rm -f kv260ctl
+cc -O2 -g -std=c11 -Wall -Wextra -Werror -I../include -o kv260ctl kv260ctl.c
+./kv260ctl selftest
+PASS host contract, signed reference, endian and ABI (no hardware)
+make -C /usr/src/linux-headers-6.12.113+deb13-arm64 M=/work/src/sw/kernel modules
+make[1]: Entering directory '/usr/src/linux-headers-6.12.113+deb13-arm64'
+  CC [M]  /work/src/sw/kernel/kv260_lab.o
+  MODPOST /work/src/sw/kernel/Module.symvers
+  CC [M]  /work/src/sw/kernel/kv260_lab.mod.o
+  CC [M]  /work/src/sw/kernel/.module-common.o
+  LD [M]  /work/src/sw/kernel/kv260_lab.ko
+  BTF [M] /work/src/sw/kernel/kv260_lab.ko
+make[1]: Leaving directory '/usr/src/linux-headers-6.12.113+deb13-arm64'
+test_failed_clean_gate_never_starts_e1 (test_tools.BoardCollectorTests.test_failed_clean_gate_never_starts_e1) ... ok
+test_success_keeps_all_three_policies_and_hashes (test_tools.BoardCollectorTests.test_success_keeps_all_three_policies_and_hashes) ... ok
+test_window_misses_are_retained_and_followups_run (test_tools.BoardCollectorTests.test_window_misses_are_retained_and_followups_run) ... ok
+test_board_report_retains_failed_batches_and_missed_windows (test_tools.BuildInputTests.test_board_report_retains_failed_batches_and_missed_windows) ... ok
+test_missing_build_cannot_be_packaged (test_tools.BuildInputTests.test_missing_build_cannot_be_packaged) ... ok
+test_mmio_constants_match_rtl (test_tools.BuildInputTests.test_mmio_constants_match_rtl) ... ok
+test_project_tcl_is_complete (test_tools.BuildInputTests.test_project_tcl_is_complete) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.508s
+
+OK
+PASS real ARM64 kernel module build and overlay merge (fixture, no board)

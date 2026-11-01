@@ -1,0 +1,261 @@
+{
+  "date_istanbul": "2026-10-31",
+  "scope": "local_source_integration_verification",
+  "rtl_pass_lines": 18,
+  "e1_cases": 36,
+  "e2_cases": 12,
+  "host_tool_tests": 7,
+  "arm64_kernel_module_compiled": true,
+  "overlay_fixture_merged": true,
+  "vivado_executed": false,
+  "yocto_image_built": false,
+  "board_executed": false,
+  "e2_records": [
+    {
+      "rows": 1,
+      "cols": 4,
+      "policy": "P0",
+      "stale_words": 1,
+      "descriptor_matches_b": 1,
+      "guard_errors": 0
+    },
+    {
+      "rows": 1,
+      "cols": 4,
+      "policy": "P1",
+      "stale_words": 1,
+      "descriptor_matches_b": 1,
+      "guard_errors": 0
+    },
+    {
+      "rows": 1,
+      "cols": 4,
+      "policy": "P2",
+      "stale_words": 0,
+      "descriptor_matches_b": 1,
+      "guard_errors": 0
+    },
+    {
+      "rows": 3,
+      "cols": 12,
+      "policy": "P0",
+      "stale_words": 3,
+      "descriptor_matches_b": 1,
+      "guard_errors": 0
+    },
+    {
+      "rows": 3,
+      "cols": 12,
+      "policy": "P1",
+      "stale_words": 3,
+      "descriptor_matches_b": 1,
+      "guard_errors": 0
+    },
+    {
+      "rows": 3,
+      "cols": 12,
+      "policy": "P2",
+      "stale_words": 0,
+      "descriptor_matches_b": 1,
+      "guard_errors": 0
+    },
+    {
+      "rows": 16,
+      "cols": 16,
+      "policy": "P0",
+      "stale_words": 16,
+      "descriptor_matches_b": 1,
+      "guard_errors": 0
+    },
+    {
+      "rows": 16,
+      "cols": 16,
+      "policy": "P1",
+      "stale_words": 16,
+      "descriptor_matches_b": 1,
+      "guard_errors": 0
+    },
+    {
+      "rows": 16,
+      "cols": 16,
+      "policy": "P2",
+      "stale_words": 0,
+      "descriptor_matches_b": 1,
+      "guard_errors": 0
+    },
+    {
+      "rows": 64,
+      "cols": 64,
+      "policy": "P0",
+      "stale_words": 64,
+      "descriptor_matches_b": 1,
+      "guard_errors": 0
+    },
+    {
+      "rows": 64,
+      "cols": 64,
+      "policy": "P1",
+      "stale_words": 64,
+      "descriptor_matches_b": 1,
+      "guard_errors": 0
+    },
+    {
+      "rows": 64,
+      "cols": 64,
+      "policy": "P2",
+      "stale_words": 0,
+      "descriptor_matches_b": 1,
+      "guard_errors": 0
+    }
+  ],
+  "sources": [
+    {
+      "path": "rtl/axis_int8_matvec.sv",
+      "sha256": "8b35c2b7e383dbe78cf3d76c4aa7476d28d433b77113e99e6f55a6415ce1c8b4"
+    },
+    {
+      "path": "rtl/kv260_matvec.sv",
+      "sha256": "930615316c27a413619c2f6458c36a137b5aba4eb81b6135741625b27d6de53b"
+    },
+    {
+      "path": "rtl/matvec_axil_ctrl.sv",
+      "sha256": "250d815e0c2b38995cf85c31183f3f8f85d7ff9af74fc247a084bbc204ab8f0a"
+    },
+    {
+      "path": "sim/axil_master_bfm.sv",
+      "sha256": "c9020633bc795774f089eececfa04f7ffc1e39078202a9750edb3bedf94055d7"
+    },
+    {
+      "path": "sim/axil_signals.svh",
+      "sha256": "4ee3d0ef12f94dad19280dcbe94140bca68104b13e2fd362ec5137ed57558471"
+    },
+    {
+      "path": "sim/models/axi_write_checker.sv",
+      "sha256": "5c0b188d096663d43bcdd6f77a639dcafabb6cdf9eeb8ca0ce841e85c4fdabc2"
+    },
+    {
+      "path": "sim/models/axi_write_ram_model.sv",
+      "sha256": "d86248c6425af245f297f0870af355121392f3787ab6b620cb711f904da67f5d"
+    },
+    {
+      "path": "sim/models/axi_write_signals.svh",
+      "sha256": "962a9667d1bca668de425650bb9b714b50e57907c3fa85c294d22ef220463082"
+    },
+    {
+      "path": "sim/models/s2mm_write_model.sv",
+      "sha256": "1ff6acf02d332661d48d7b943429d860993f4fcbc5441fca31f8c52f8f7159da"
+    },
+    {
+      "path": "sim/tb_axis_int8_matvec.sv",
+      "sha256": "85c0d1246cf216082c3fe1ece890be324d2b2e2868b583657acfd119470f5323"
+    },
+    {
+      "path": "sim/tb_dma_buffer_reuse.sv",
+      "sha256": "86d9b033884e3fdf324bbaf9756d09a5174d8d206ff191bff731f1c258d9b4f6"
+    },
+    {
+      "path": "sim/tb_dma_models.sv",
+      "sha256": "003acbbe0ef677ae25a72ac50f16f724b0d9a21c4c5ed10ae324c286fa5f9421"
+    },
+    {
+      "path": "sim/tb_kv260_matvec.sv",
+      "sha256": "1a0a8805e44c3334056c2da797b8a8209b4276013ae261f256a122931d15f58c"
+    },
+    {
+      "path": "sim/tb_matvec_axil_ctrl.sv",
+      "sha256": "8650bafe08634dda5d69dc541b56f309d80e2ad97e70053c38b6fd8093138916"
+    },
+    {
+      "path": "sim/tb_stale_stream.sv",
+      "sha256": "9cc5e09ff6e0b2b63f09e62a5c4b221e7fb4720cfc225d3972eba565af422c7d"
+    },
+    {
+      "path": "sw/include/kv260_contract.h",
+      "sha256": "5c279821a4ece19126beb64405f434eb715be2bb6d732ac97fef8a3f87bc7d49"
+    },
+    {
+      "path": "sw/include/kv260_uapi.h",
+      "sha256": "0faae9fcc6c167b74e508bcaeea46741531fecd7a9151162fefb0d105161987e"
+    },
+    {
+      "path": "sw/kernel/Makefile",
+      "sha256": "1ba1f280e4ed1a278523d07c937ea69796b9a37f586d2e0cb390b9ecaac9e133"
+    },
+    {
+      "path": "sw/kernel/kv260_lab.c",
+      "sha256": "b9decdb611ecd99d005fa7e84ad6df4b1c7ce7730d5fe07b930c1cbcb69f10de"
+    },
+    {
+      "path": "sw/user/Makefile",
+      "sha256": "c1f0f1234ede361797ad1a9af6a08e771eb9eb54ce267c9c1b4e45f69922cb96"
+    },
+    {
+      "path": "sw/user/kv260ctl.c",
+      "sha256": "f5e2b7bca9637fc9080325b9923692a3fbab6f3afa000c2e799c85d503ccfc28"
+    },
+    {
+      "path": "scripts/package_firmware.py",
+      "sha256": "a2e40c8b3120701f6aba117d0b275aa9ec752711672b63fd1696def19b79fdf3"
+    },
+    {
+      "path": "scripts/report_board.py",
+      "sha256": "db9c2971890ecd00a09f599c42ed45fe08fba0d6fc0f5bdcb34c806f99514c35"
+    },
+    {
+      "path": "scripts/report_reuse.py",
+      "sha256": "86845fd849476ed13b0efd41e7bc88d5f6b19e1cbbdfa55002f03b65e1f9e213"
+    },
+    {
+      "path": "scripts/report_system.py",
+      "sha256": "e9ab6fe7845e5c90774968aa66abb89ab5813ca9c14a551239b1503b98817ad5"
+    },
+    {
+      "path": "scripts/run_board_suite.py",
+      "sha256": "9f5e35e239ec8ec7d37b30635c402594762e242a58183bd0b3bb499c7c4190bc"
+    },
+    {
+      "path": "scripts/verify_linux.sh",
+      "sha256": "e60f8e1d7bbb444e297eacffa604c49529c849b5ca065914fcb1fe6efd351ff0"
+    },
+    {
+      "path": "tests/Dockerfile",
+      "sha256": "877e16984ec6a5c3f8dcab22f950fcb416a59d40ecdf4097fbdf5fc045854e6c"
+    },
+    {
+      "path": "tests/fixtures/base.dts",
+      "sha256": "3e708720ab23f68e600737001ca9d019b47e1aaf6f7038d504b9d6de7ab24b41"
+    },
+    {
+      "path": "tests/test_tools.py",
+      "sha256": "5487ca21c712c114e0da0a5915250751824a91fbd14bfed983bb58e5d66c1417"
+    },
+    {
+      "path": "hw/create_project.tcl",
+      "sha256": "8cac1b7d3166579a6a086413ee9c05b1916b339b263c8484c457cee8530e3458"
+    },
+    {
+      "path": "linux/kernel.config.fragment",
+      "sha256": "ac0db5a74ae60dddbeee0a5c74c3121182026caa12d2515c5feed7722d88f65a"
+    },
+    {
+      "path": "linux/kv260-secx.dtso",
+      "sha256": "bca6a089a07e56c9c8236a9e528d894cb98ed8ae77920bf4576ca7978e2aec5b"
+    },
+    {
+      "path": "linux/meta-hardware-secx/conf/layer.conf",
+      "sha256": "74300987f4c41a4eea8e11e42791bd7439c1b7b5ba30af188540fe3ecb7fef30"
+    },
+    {
+      "path": "linux/meta-hardware-secx/recipes-apps/kv260ctl/kv260ctl.bb",
+      "sha256": "a4fcffaab651fa884186fb496c6588d3c8877ef2972d9f456aa1038838caa72a"
+    },
+    {
+      "path": "linux/meta-hardware-secx/recipes-kernel/kv260-lab/kv260-lab.bb",
+      "sha256": "023b9c966fcba308de18f5a6abc5c1a3051c2d8e8cd9df79fcc852a07f015da9"
+    },
+    {
+      "path": "Makefile",
+      "sha256": "b0430e471707e89b36ddf680c19a269645900091ffe090b667d2177a939fcb57"
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#06131b"><meta name="color-scheme" content="dark">
+  <title>VulnLM Hardware — Hardware Security Lab · Cyberdes</title>
+  <link rel="icon" type="image/png" href="/assets/cyberdes-logo.png"><link rel="stylesheet" href="/style.css">
+  <script src="/i18n.js" defer></script><script src="/app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="VulnLM Hardware · Cyberdes"><img class="brand-logo" src="/assets/cyberdes-logo.png" alt="Cyberdes logo" width="37" height="37"><span class="brand-text"><span class="brand-name">Vuln<span>LM</span> <b>Hardware</b></span><span class="brand-company">Cyberdes</span></span><span class="brand-version">LAB</span></a>
+    <nav aria-label="Lab navigation"><a class="nav-link" href="https://github.com/cyberdes-security/vulnlm" target="_blank" rel="noopener noreferrer">VulnLM ↗</a><span class="badge" data-i18n="intentional">Intentionally vulnerable</span><span class="lang" role="group" aria-label="Language"><button class="lang-btn active" type="button" data-lang="en-GB" aria-pressed="true">EN</button><button class="lang-btn" type="button" data-lang="tr" aria-pressed="false">TR</button></span></nav>
+  </header>
+  <div class="workspace">
+    <aside class="panel sidebar">
+      <p class="eyebrow" data-i18n="workspace">WORKSPACE</p><h1 data-i18n="labTitle">Hardware Security Lab</h1><p class="muted" data-i18n="tagline">Real requests, real DMA, observable product impact.</p>
+      <div class="device-box"><span class="device-avatar" aria-hidden="true">HW</span><div><strong>AMD Kria KV260</strong><div class="connection" id="connection"><span class="dot"></span><span id="connection-text" data-i18n="checking">Checking device</span></div></div></div>
+      <div class="metrics"><div class="metric"><strong id="core-shape">—</strong><span data-i18n="coreShape">INT8 core shape</span></div><div class="metric"><strong id="active-policy">P0</strong><span data-i18n="servicePolicy">Service policy</span></div></div>
+      <div class="scenario-heading"><p class="eyebrow" data-i18n="scenario">HARDWARE SCENARIO</p><div class="scenario-tag">E1 · DMA</div><h2 data-i18n="scenarioTitle">Late buffer reuse</h2><p class="caption" data-i18n="scenarioDescription">A times out. Its buffer is assigned to B. A’s delayed write arrives after the handoff.</p><p class="boundary"><strong data-i18n="boundary">Broken boundary</strong><span data-i18n="boundaryText">A completed calculation is not necessarily the current request’s result.</span></p></div>
+      <fieldset id="context-fields"><legend class="eyebrow" data-i18n="policy">SERVICE POLICY</legend>
+        <div class="policies" role="radiogroup" aria-label="Service policy">
+          <label class="policy"><input form="request-form" type="radio" name="policy" value="0" checked><span><strong data-i18n="p0">Vulnerable service</strong><small data-i18n="p0Detail">Reuse early. Accept the late result as B.</small></span><span class="policy-code">P0</span></label>
+          <label class="policy"><input form="request-form" type="radio" name="policy" value="1"><span><strong data-i18n="p1">Identity check</strong><small data-i18n="p1Detail">Reject A’s reply; inspect the memory effect.</small></span><span class="policy-code">P1</span></label>
+          <label class="policy"><input form="request-form" type="radio" name="policy" value="2"><span><strong data-i18n="p2">Protected service</strong><small data-i18n="p2Detail">Drain old accesses before assigning B.</small></span><span class="policy-code">P2</span></label>
+        </div>
+        <details class="settings"><summary><span data-i18n="previousSettings">Previous request & fault settings</span><span aria-hidden="true">＋</span></summary>
+          <label class="field-label" for="a-label" data-i18n="previousPart">Previous part A</label><input form="request-form" id="a-label" value="Part A-103" maxlength="60" required>
+          <div class="measure-grid compact">
+            <label for="a-surface"><span data-i18n="surfaceShort">Surface</span><input form="request-form" id="a-surface" type="number" min="0" max="100" step="1" value="5" required></label>
+            <label for="a-dimension"><span data-i18n="dimensionShort">Dimension</span><input form="request-form" id="a-dimension" type="number" min="0" max="100" step="1" value="4" required></label>
+            <label for="a-temperature"><span data-i18n="temperatureShort">Temperature</span><input form="request-form" id="a-temperature" type="number" min="0" max="100" step="1" value="6" required></label>
+            <label for="a-vibration"><span data-i18n="vibrationShort">Vibration</span><input form="request-form" id="a-vibration" type="number" min="0" max="100" step="1" value="8" required></label>
+          </div>
+          <label class="field-label" for="delay" data-i18n="delay">A output delay (core cycles)</label><input form="request-form" id="delay" type="number" min="1" max="200000000" value="50000000" required>
+          <label class="field-label" for="timeout" data-i18n="timeout">Service timeout (ms)</label><input form="request-form" id="timeout" type="number" min="1" max="5000" value="20" required>
+          <p class="caption" data-i18n="delayHint">Delay runs on the core. Timestamps come from the real driver.</p>
+        </details>
+      </fieldset>
+      <p class="sidebar-note caption" data-i18n="labScope">Controlled fault injection in our custom accelerator and service. Not a disclosed AMD product vulnerability.</p>
+    </aside>
+    <main class="panel experiment-panel">
+      <div class="panel-heading"><div><p class="eyebrow" data-i18n="liveExperiment">LIVE EXPERIMENT</p><h2 data-i18n="qualityControl">Product quality control</h2></div><span class="dot-label" id="device-chip" data-i18n="hardwareRequired">Hardware required</span></div>
+      <div class="experiment-body">
+        <div id="connection-note" class="notice" role="status" data-i18n="waitingConnection">Waiting for the device. No hardware data, no product result.</div>
+        <form id="request-form"><fieldset id="request-fields">
+          <div class="request-heading"><h3 data-i18n="currentRequest">CURRENT REQUEST</h3><span class="tag">B</span></div>
+          <label class="field-label" for="b-label" data-i18n="partName">Product / part name</label><input id="b-label" value="Part B-204" maxlength="60" required>
+          <div class="measure-heading"><span data-i18n="measurements">Deviation measurements</span><span class="caption" data-i18n="measurementScale">0 = ideal · 100 = highest deviation</span></div>
+          <div class="measure-grid">
+            <label for="b-surface"><span data-i18n="surface">Surface deviation</span><span class="number-input"><input id="b-surface" type="number" min="0" max="100" step="1" value="70" required><span>/ 100</span></span></label>
+            <label for="b-dimension"><span data-i18n="dimension">Dimensional deviation</span><span class="number-input"><input id="b-dimension" type="number" min="0" max="100" step="1" value="55" required><span>/ 100</span></span></label>
+            <label for="b-temperature"><span data-i18n="temperature">Temperature deviation</span><span class="number-input"><input id="b-temperature" type="number" min="0" max="100" step="1" value="40" required><span>/ 100</span></span></label>
+            <label for="b-vibration"><span data-i18n="vibration">Vibration deviation</span><span class="number-input"><input id="b-vibration" type="number" min="0" max="100" step="1" value="30" required><span>/ 100</span></span></label>
+          </div>
+          <div class="composer-footer"><span class="caption" data-i18n="rule">Quality gate: score ≥ 700 / 1,000 → accept</span><button class="primary run-button" id="run-button" type="submit" disabled><span data-i18n="run">Run on hardware</span> ↗</button></div>
+        </fieldset></form>
+        <div id="empty-state" class="empty-state"><img src="/assets/cyberdes-logo.png" alt="" width="60" height="60"><h3 data-i18n="emptyTitle">The right answer. For the wrong request.</h3><p data-i18n="emptyDescription">Submit B’s measurements to inspect the actual hardware result, its request identity and the resulting product decision.</p><div class="hardware-chain"><span data-i18n="browser">Browser</span><b>→</b><span data-i18n="boardService">Board service</span><b>→</b><span>DMA / KV260</span></div><p class="caption" data-i18n="noFallback">No canned output or simulation fallback.</p></div>
+        <div id="running-state" class="running-state" hidden><div class="spinner" aria-hidden="true"></div><h3 id="running-title"></h3><p id="running-message" aria-live="polite"></p><p id="wait-note" class="notice" hidden data-i18n="stillWaiting">The transfer is still active. Its buffer is retained; no new job was admitted.</p></div>
+        <div id="error-state" class="error-state" hidden role="alert"><span class="error-symbol">!</span><h3 data-i18n="noProductResult">No product result was produced.</h3><p id="error-message"></p><p class="caption" data-i18n="failureHint">Device access or validation failed. No replacement result is generated.</p></div>
+        <div id="result-content" hidden>
+          <div class="result-hero" id="result-hero" role="status" aria-live="polite"><p class="eyebrow" id="outcome-eyebrow"></p><h3 id="outcome-title"></h3><p id="outcome-description"></p></div>
+          <div class="comparison">
+            <article class="score-card expected"><span class="caption" data-i18n="correctB">Correct result for B</span><div class="score"><strong id="expected-score">—</strong><span>/ 1,000</span></div><span class="decision" id="expected-decision"></span><p class="caption" data-i18n="controlVerified">Independent hardware control · CPU reference verified</p></article>
+            <article class="score-card delivered" id="delivered-card"><span class="caption" data-i18n="deliveredB">Delivered to request B</span><div class="score"><strong id="delivered-score">—</strong><span>/ 1,000</span></div><span class="decision" id="delivered-decision"></span><p class="caption" id="source-label"></p></article>
+          </div>
+          <div class="impact"><span class="eyebrow" data-i18n="productImpact">PRODUCT IMPACT</span><strong id="impact-text"></strong><span id="impact-detail"></span></div>
+        </div>
+        <p class="model-note caption" data-i18n="modelNote">Illustrative quality-gate rule, not a trained industrial model. The score is calculated by the INT8 hardware core.</p>
+      </div>
+    </main>
+    <aside class="panel evidence-panel">
+      <div class="panel-heading"><div><p class="eyebrow" data-i18n="observability">OBSERVABILITY</p><h2 data-i18n="transactionEvidence">Transaction evidence</h2></div><span class="tag" id="result-tag" data-i18n="waiting">WAITING</span></div>
+      <p class="muted evidence-intro" data-i18n="evidenceIntro">Inspect actual DMA output and request identity. An incorrect product decision requires verified hardware evidence.</p>
+      <div id="evidence-empty" class="evidence-empty"><pre data-i18n="noTransactions">No hardware transactions yet.</pre></div>
+      <div id="evidence-content" hidden>
+        <section class="timeline-section"><h3 data-i18n="timeline">REQUEST TIMELINE</h3><p class="caption" data-i18n="relativeTime">Relative to A’s hardware submission</p><ol id="timeline" class="timeline"></ol><p class="caption" data-i18n="timestampScope">DMA time is callback observation, not the physical DDR write instant.</p></section>
+        <dl id="evidence-list"></dl><details class="evidence"><summary><span data-i18n="rawEvidence">Raw evidence record</span><span aria-hidden="true">＋</span></summary><pre id="raw-record"></pre></details>
+        <button class="secondary download-button" id="download-button" type="button"><span data-i18n="download">Download request record</span> ↓</button>
+      </div>
+      <div class="session-log"><h3 data-i18n="sessionLog">SESSION LOG</h3><ol id="live-events" class="live-events"><li data-i18n="noRequest">No request submitted.</li></ol></div>
+    </aside>
+  </div>
+  <footer class="site-footer"><span class="footer-brand"><img src="/assets/cyberdes-logo.png" alt="" width="18" height="18">© Cyberdes Ltd.</span><span class="footer-sep">·</span><span data-i18n="footer">VulnLM Hardware · Local, authorised hardware security experiments.</span></footer>
+</body>
+</html>

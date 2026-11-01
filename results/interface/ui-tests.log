@@ -1,0 +1,14 @@
+node --check web/static/app.js
+node --check web/static/i18n.js
+node --test tests/interface_dom.test.mjs
+✔ English first load, all static translations and original offline behaviour (3.785875ms)
+✔ P0 renders the real-response contract and preserves full-width timestamps (12.000084ms)
+✔ protected result and missed window do not show a fabricated wrong reply (2.667208ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 64.208334

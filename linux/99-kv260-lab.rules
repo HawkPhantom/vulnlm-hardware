@@ -1,0 +1,1 @@
+KERNEL=="kv260-lab", MODE="0600", OWNER="root", GROUP="root"

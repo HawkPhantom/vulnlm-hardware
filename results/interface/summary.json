@@ -1,0 +1,82 @@
+{
+  "project": "VulnLM Hardware",
+  "date": "2026-11-01",
+  "default_language": "en-GB",
+  "languages": [
+    "en-GB",
+    "tr-TR"
+  ],
+  "verification": {
+    "mac_python_tests": 24,
+    "arm64_linux_python_tests": 24,
+    "node_ui_tests": 3,
+    "c_selftest": "passed on host and ARM64 Linux",
+    "kernel_build": "ARM64 Linux 6.12.113+deb13; W=1 KCFLAGS=-Werror",
+    "c_python_ioctl_abi": "passed",
+    "device_tree_fixture_merge": "passed",
+    "shell_syntax": "passed",
+    "browser_manual": [
+      "English selected",
+      "EN/TR switch",
+      "supplied logo rendered",
+      "offline execution disabled"
+    ],
+    "browser_viewport": "736 px wide; responsive stacked layout",
+    "hardware_execution": false,
+    "vivado_execution": false
+  },
+  "abi": {
+    "info_size": 32,
+    "run_size": 160,
+    "input_offset": 32,
+    "status_offset": 56,
+    "submit_offset": 96,
+    "get_info": 2149600000,
+    "run": 3231730433,
+    "capture_op": 2,
+    "capture_cap": 1
+  },
+  "reference": {
+    "repository": "https://github.com/cyberdes-security/vulnlm",
+    "commit": "a4334f8a58cdba7480795a9986ce6c3894182c5e"
+  },
+  "source_sha256": {
+    "Makefile": "342757658b55af9b4eb8c11fe16f79daa43ea6c80d111df7c9ef45434a47569d",
+    "docs/INTERFACE.md": "b1b42d8eb6d997238f17d60b6e1f676cef2ac4e0b5029a56a0f2c61496cedb92",
+    "linux/kv260-secx.dtso": "bca6a089a07e56c9c8236a9e528d894cb98ed8ae77920bf4576ca7978e2aec5b",
+    "rtl/axis_int8_matvec.sv": "8b35c2b7e383dbe78cf3d76c4aa7476d28d433b77113e99e6f55a6415ce1c8b4",
+    "rtl/kv260_matvec.sv": "930615316c27a413619c2f6458c36a137b5aba4eb81b6135741625b27d6de53b",
+    "rtl/matvec_axil_ctrl.sv": "250d815e0c2b38995cf85c31183f3f8f85d7ff9af74fc247a084bbc204ab8f0a",
+    "scripts/verify_linux.sh": "436e7e503e8ff66a90ffcc53e3ff003e7f44b232db4794367d7bc6ce2d4ff029",
+    "sw/include/kv260_contract.h": "5c279821a4ece19126beb64405f434eb715be2bb6d732ac97fef8a3f87bc7d49",
+    "sw/include/kv260_uapi.h": "2e8c303f3449620917252ff3c9b5215902ebf6929cf0466753f0a67875da4a4c",
+    "sw/kernel/Makefile": "1ba1f280e4ed1a278523d07c937ea69796b9a37f586d2e0cb390b9ecaac9e133",
+    "sw/kernel/kv260_lab.c": "1c5725e73c79bf18d89cc7ada0675df9e97077c42423a768021732d6ef96b89b",
+    "sw/user/Makefile": "c1f0f1234ede361797ad1a9af6a08e771eb9eb54ce267c9c1b4e45f69922cb96",
+    "sw/user/kv260ctl.c": "5a5cef7e29afef485c73bd2b4d60bfe3a94d13e432f1e81ec1ea39f3e2bafac1",
+    "tests/Dockerfile": "877e16984ec6a5c3f8dcab22f950fcb416a59d40ecdf4097fbdf5fc045854e6c",
+    "tests/fixtures/web_abi.c": "2cdfba027af2a616f7dc7317fb128245e3e457a146df5f8df9a5ee65e00bf69f",
+    "tests/interface_dom.test.mjs": "825b9fc5705e0075eb78f8dd57486c0e6b81a5d4dc57a2f2515e7595721f0a74",
+    "tests/test_interface.py": "197c9194fc41f17458a6d6bf0cb452d5e8b6ab74632ed6aa9756aaaa1d78ed70",
+    "web/__init__.py": "a26a270a53b0828a74c9d88a097068082e1699a9a9ece34e76806d390d8cab3b",
+    "web/hardware.py": "3e711a3f260b256425159798e3bd70d84ae431ddf3f8894845183b9e544c28e9",
+    "web/product.py": "35f5b4c8432801fee7a7c08be47b77a6fb61da2590b4e8fcd0a1a9c9aad56e29",
+    "web/run_on_board.sh": "bdf2186e9226f40480c81bd2440db8a5e5f23f68c1c86f18c81ef2eeb16dcb9e",
+    "web/server.py": "b7529b4cf0ad743738ee2b5565505351d1be18e0f8664a50aed0a501ee72879d",
+    "web/static/app.js": "992df6b62d6366380ba280d68e5ae52f25c3b652d38ce17119ec8d350c386ef0",
+    "web/static/assets/cyberdes-logo.png": "a023a0952d1af7942dd6dfdeaaf92b2a9b314bab1cf6654c6b78203d4a755e3f",
+    "web/static/i18n.js": "7671fc1ff814a4b49866c290cbdcf0af5c22ac141477351e38826ff6649b5774",
+    "web/static/index.html": "a5c8c92a2c7d6e4c2fc03c6c752493593bf1aff8cbdc074bdca180e150aa7ae0",
+    "web/static/style.css": "d597f76a50373c523c6e93d429727689437fd245e1c88d599e1d2c6be0deb0c3"
+  },
+  "artifact_sha256": {
+    "RAPOR.md": "5c2fe72fcbb4fcf40201f1127a1d5c572c714199bcbeb2eb35b6588238e8b06a",
+    "host-tests.log": "984e937ae9ae95ba8895cdef1f33348a42f43f01277928f8e43f85b714020b47",
+    "linux-tests.log": "d11e9b8ef762c9d5d527fd21433f9265ce5a02f4ce1c01d7cf877020fd17bfb0",
+    "ui-tests.log": "dc074110f21f7cc046b6724aefab98a50cf656fb14a119c0019d07129f8e62d1",
+    "verification-manifest.txt": "d0ebb3098b9efbd73f76c9e5f77f4d6159b7bbd8604eb78503a9e1f73cefb7f5",
+    "vulnlm-hardware-request.png": "8f5631265ad0a58f105220e2e271a6dd281b21bfa948c568aa5375d09d2d7c6a",
+    "vulnlm-hardware.png": "32170b2dc9522430aa666e2da5815ad8259b4b8c042b80da45e33769d134f880",
+    "web-abi.json": "258c950bb0f07f69493127a910b636782a6cc987ef4cf229969a4fc4c2e6d51b"
+  }
+}

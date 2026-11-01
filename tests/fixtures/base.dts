@@ -1,0 +1,16 @@
+/dts-v1/;
+/* DT compiler fixture, not a bootable board device tree. */
+/ {
+    #address-cells = <2>; #size-cells = <2>;
+    gic: interrupt-controller@f9010000 {
+        compatible = "arm,gic-400";
+        reg = <0 0xf9010000 0 0x10000>;
+        interrupt-controller;
+        #interrupt-cells = <3>;
+        #address-cells = <0>;
+    };
+    fpga_full: fpga-region {
+        compatible = "fpga-region";
+        #address-cells = <2>; #size-cells = <2>; ranges;
+    };
+};

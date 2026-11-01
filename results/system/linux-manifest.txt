@@ -1,0 +1,17 @@
+PRETTY_NAME="Debian GNU/Linux 13 (trixie)"
+NAME="Debian GNU/Linux"
+VERSION_ID="13"
+VERSION="13 (trixie)"
+VERSION_CODENAME=trixie
+DEBIAN_VERSION_FULL=13.7
+ID=debian
+HOME_URL="https://www.debian.org/"
+SUPPORT_URL="https://www.debian.org/support"
+BUG_REPORT_URL="https://bugs.debian.org/"
+cc (Debian 14.2.0-19) 14.2.0
+headers=/usr/src/linux-headers-6.12.113+deb13-arm64
+Version: DTC 1.7.2
+b9decdb611ecd99d005fa7e84ad6df4b1c7ce7730d5fe07b930c1cbcb69f10de  /src/sw/kernel/kv260_lab.c
+5c279821a4ece19126beb64405f434eb715be2bb6d732ac97fef8a3f87bc7d49  /src/sw/include/kv260_contract.h
+0faae9fcc6c167b74e508bcaeea46741531fecd7a9151162fefb0d105161987e  /src/sw/include/kv260_uapi.h
+bca6a089a07e56c9c8236a9e528d894cb98ed8ae77920bf4576ca7978e2aec5b  /src/linux/kv260-secx.dtso

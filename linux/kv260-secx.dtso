@@ -1,0 +1,56 @@
+/dts-v1/;
+/plugin/;
+
+/* Matches hw/create_project.tcl only. Boot firmware must configure PL0 at
+ * 100 MHz using the generated XSA. This fixed-clock describes that signal;
+ * it does not program the PS PLL. No dma-coherent claim on the HP0 path. */
+/ {
+    fragment@0 {
+        target = <&fpga_full>;
+        __overlay__ {
+            firmware-name = "kv260_secx.bit.bin";
+            #address-cells = <2>;
+            #size-cells = <2>;
+            secx_dma: dma@a0000000 {
+                compatible = "xlnx,axi-dma-1.00.a";
+                reg = <0x0 0xa0000000 0x0 0x10000>;
+                #dma-cells = <1>;
+                xlnx,addrwidth = <40>;
+                xlnx,sg-length-width = <23>;
+                clocks = <&secx_pl0>, <&secx_pl0>, <&secx_pl0>, <&secx_pl0>;
+                clock-names = "s_axi_lite_aclk", "m_axi_mm2s_aclk", "m_axi_s2mm_aclk", "m_axi_sg_aclk";
+                interrupt-parent = <&gic>;
+                dma-channel-mm2s {
+                    compatible = "xlnx,axi-dma-mm2s-channel";
+                    interrupts = <0 89 4>;
+                    xlnx,datawidth = <32>;
+                    dma-channels = <1>;
+                };
+                dma-channel-s2mm {
+                    compatible = "xlnx,axi-dma-s2mm-channel";
+                    interrupts = <0 90 4>;
+                    xlnx,datawidth = <32>;
+                    dma-channels = <1>;
+                };
+            };
+            secx_core: matvec@a0010000 {
+                compatible = "hardware-secx,kv260-matvec-1.0";
+                reg = <0x0 0xa0010000 0x0 0x1000>;
+                dmas = <&secx_dma 0>, <&secx_dma 1>;
+                dma-names = "tx", "rx";
+                /* Core IRQ is wired to SPI91, but this driver polls LAST;
+                 * it keeps the core IRQ disabled. DMA IRQs are independent. */
+            };
+        };
+    };
+    fragment@1 {
+        target-path = "/";
+        __overlay__ {
+            secx_pl0: secx-pl0-clock {
+                compatible = "fixed-clock";
+                #clock-cells = <0>;
+                clock-frequency = <100000000>;
+            };
+        };
+    };
+};
